@@ -1,7 +1,7 @@
 """Build a versioned public item/quote snapshot. No API keys are used."""
 import pathlib,json,re,collections,datetime,struct
 ROOT=pathlib.Path(__file__).resolve().parent.parent
-research=ROOT/'data'; dest=ROOT/'dist'
+research=ROOT/'data'; dest=ROOT/'public'; out=ROOT/'src/data/catalog.json'
 items=json.loads((research/'items-26.1.json').read_text())
 blocks={b['name'] for b in json.loads((research/'blocks-26.1.json').read_text())}
 quotes=json.loads((research/'quotes-2026-10-21.json').read_text())
@@ -61,5 +61,6 @@ for target,options in json.loads((research/'recipes-26.1.json').read_text()).ite
 # Public Donut.Auction displayed values are retained as separately attributed observations.
 alternates=json.loads((research/'auction-observations-2026-10-21.json').read_text())
 meta={'catalogVersion':'Minecraft Java 26.1','catalogCount':len(items),'source':'https://donutsmpterminal.com/all_items','sourceTime':'2026-10-21T17:49:00Z','retrievedOn':'2026-10-21','priceCount':sum(x['price'] is not None for x in rows),'monthlyCoverage':0,'notes':'Public rounded quoted prices. No verified month-to-date transaction history is included. Missing prices are null, never zero. Custom server items are only those identified in public source material.'}
-(dest/'catalog.js').write_text('window.DT_DATA='+json.dumps({'meta':meta,'items':rows,'recipes':recipes,'alternates':alternates,'spawners':spawners},separators=(',',':'))+';\n',encoding='utf-8',newline='\n')
+out.parent.mkdir(parents=True,exist_ok=True)
+out.write_text(json.dumps({'meta':meta,'items':rows,'recipes':recipes,'alternates':alternates,'spawners':spawners},separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
 print(json.dumps({'catalog':len(items),'combined':len(rows),'prices':meta['priceCount'],'recipes':len(recipes),'alternateQuotes':len(alternates),'monthlyAverages':0}))

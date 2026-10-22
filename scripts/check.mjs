@@ -1,71 +1,82 @@
+// Data + logic checks. `--dist` also checks a finished `vite build`.
 import fs from 'node:fs';
-import vm from 'node:vm';
 import assert from 'node:assert/strict';
-const scope={console,Intl,Date,Number,Map,Set,matchMedia:()=>({matches:false}),localStorage:{getItem:()=>null},window:{},document:{querySelector:()=>null,querySelectorAll:()=>[]}};
-vm.createContext(scope);
-vm.runInContext(fs.readFileSync('dist/catalog.js','utf8'),scope);
-const js=fs.readFileSync('dist/app.js','utf8');
-new vm.Script(js);
-new vm.Script(fs.readFileSync('dist/motion.js','utf8'));
-vm.runInContext(js.slice(0,js.indexOf("document.addEventListener('click'")),scope);
-const data=scope.window.DT_DATA;
-assert.equal(data.meta.catalogCount,1505,'Java 26.1 registry minus Air');
-assert(!data.items.some(d=>d.id==='air'),'Air is not a tradeable item');
-assert.equal(data.items.length,new Set(data.items.map(d=>d.id)).size,'IDs must be unique');
-assert.equal(data.items.filter(d=>Number.isFinite(d.price)).length,1404);
-assert(data.items.every(d=>d.price===null||d.price>0));
-assert(data.items.filter(d=>d.price!==null).every(d=>d.source&&d.sourceTime),'Every quote must retain provenance');
-assert(data.items.every(d=>d.monthlyAverage===null),'No monthly average can be invented from a current quote');
-for(const d of data.items)if(d.icon)assert(fs.existsSync('dist/assets/'+d.icon),`Missing icon: ${d.icon}`);
-assert.equal(data.items.filter(d=>d.rendered).length,1505,'Every vanilla registry entry must have its native inventory render');
-assert.equal(data.items.find(d=>d.id==='netherite_ingot').icon,'renders/netherite_ingot.png');
-for(const id of ['dragon_head','piglin_head','player_head','zombie_head','creeper_head','skeleton_skull','wither_skeleton_skull','bone_block']){
- const d=data.items.find(d=>d.id===id);
- assert.equal(d.icon,`renders/${id}.png`,'Heads and Bone Block must use native inventory models, never drawn stand-ins or flat textures');
- assert.equal(d.cube,false,'Native model renders must not receive the legacy flat-texture skew');
+import { fmt, pct } from '../src/lib/format.ts';
+import { craft, craftable, passesGrade } from '../src/lib/market.ts';
+import { spawnerEstimate } from '../src/lib/spawner.ts';
+import { parseCSV, aggregateSales } from '../src/lib/csv.ts';
+
+const data = JSON.parse(fs.readFileSync('src/data/catalog.json', 'utf8'));
+const byId = new Map(data.items.map((d) => [d.id, d]));
+
+// Catalog integrity and provenance
+assert.equal(data.meta.catalogCount, 1505, 'Java 26.1 registry minus Air');
+assert(!byId.has('air'), 'Air is not a tradeable item');
+assert.equal(data.items.length, byId.size, 'IDs must be unique');
+assert.equal(data.items.filter((d) => Number.isFinite(d.price)).length, 1404);
+assert(data.items.every((d) => d.price === null || d.price > 0));
+assert(data.items.filter((d) => d.price !== null).every((d) => d.source && d.sourceTime), 'Every quote must retain provenance');
+assert(data.items.every((d) => d.monthlyAverage === null), 'No monthly average can be invented from a current quote');
+for (const d of data.items) if (d.icon) assert(fs.existsSync('public/assets/' + d.icon), `Missing icon: ${d.icon}`);
+assert.equal(data.items.filter((d) => d.rendered).length, 1505, 'Every vanilla registry entry must have its native inventory render');
+for (const id of ['dragon_head', 'piglin_head', 'player_head', 'zombie_head', 'creeper_head', 'skeleton_skull', 'wither_skeleton_skull', 'bone_block']) {
+  const d = byId.get(id);
+  assert.equal(d.icon, `renders/${id}.png`, 'Heads and Bone Block must use native inventory models');
+  assert.equal(d.flat, false);
 }
-const html=fs.readFileSync('dist/index.html','utf8');
-for(const f of fs.readdirSync('dist/assets/build'))assert(html.includes('assets/build/'+f),`Unreferenced release copy: ${f}`);
-for(const name of ['styles','catalog','motion','app']){
- const path=html.match(new RegExp(`assets/build/${name}-[a-f0-9]{16}\\.(?:js|css)`))?.[0];
- assert(path&&fs.existsSync('dist/'+path),`Missing versioned ${name} entry`);
- const source=`dist/${name}.${name==='styles'?'css':'js'}`;
- assert(fs.readFileSync('dist/'+path).equals(fs.readFileSync(source)),`Stale release copy: ${name}`);
+assert.equal(byId.get('elytra').flat, true);
+assert(fs.existsSync('public/assets/spawner.png') && fs.existsSync('public/assets/renders/spawner.png'));
+
+// Formatting
+assert.equal(fmt(null), '—');
+for (const [n, out] of [[0, '0'], [417, '417'], [46860, '46.9K'], [30500, '30.5K'], [48070000, '48.1M'], [8800000, '8.8M'], [999600, '1M'], [-1234, '-1.23K']]) assert.equal(fmt(n), out, `fmt(${n})`);
+assert.equal(pct(157604.9), '157,605%');
+
+// Recipes: yield normalization and quote grades
+const rocket = craft(byId.get('firework_rocket'), data.recipes, byId);
+assert(rocket && rocket.yield === 3, 'Rocket ingredients must be normalized by the three-item recipe yield');
+assert(Math.abs(rocket.cost - rocket.lines.reduce((s, l) => s + l.count * l.price, 0) / rocket.yield) < 1e-8);
+assert.equal(craft(byId.get('donut_skeleton_spawner'), data.recipes, byId), null);
+const flips = craftable(data.items, data.recipes, byId);
+const reliable = flips.filter((d) => passesGrade(d.recipe.grade, 'B'));
+assert(reliable.length > 0 && reliable.every((d) => ['S', 'A', 'B'].includes(d.recipe.grade)), 'Default flips exclude C/D-grade quotes');
+assert(!reliable.some((d) => d.id === 'waxed_exposed_copper_chest'));
+assert(flips.length > reliable.length);
+
+// CSV import
+const parsed = parseCSV('item,unitPrice,quantity,timestamp\n"diamond",100,2,2026-10-10T12:00:00Z\n"stone",50,4,2026-10-11T12:00:00Z\nstone,10,1,2026-09-30T12:00:00Z');
+assert.equal(parsed.length, 3); assert.equal(parsed[0].item, 'diamond'); assert.equal(parsed[1].quantity, '4');
+const sales = aggregateSales(parsed, (raw) => byId.get(raw));
+assert.equal(sales.invalid, 1, 'Sales outside Oct 1–21 are skipped');
+assert.equal(sales.samples.diamond.average, 100);
+
+// Spawners
+assert.equal(data.spawners.types.length, 9);
+const drops = (id) => data.spawners.types.find((t) => t.id === id).drops;
+assert.deepEqual(drops('blaze'), ['blaze_powder']);
+assert.deepEqual(drops('cow'), ['beef']);
+assert.deepEqual(drops('zombified_piglin'), ['gold_nugget']);
+assert.deepEqual(drops('skeleton'), ['bone', 'arrow']);
+assert.deepEqual(drops('spider'), ['string', 'spider_eye']);
+for (const t of data.spawners.types) {
+  assert(byId.has(t.icon));
+  for (const id of t.drops) assert(byId.has(id));
+  assert(byId.get('donut_' + t.id + '_spawner')?.price === null);
 }
-const parsed=vm.runInContext(`parseCSV('item,unitPrice,quantity,timestamp\\n"diamond",100,2,2026-10-10T12:00:00Z\\n"stone",50,4,2026-10-11T12:00:00Z')`,scope);
-assert.equal(parsed.length,2);assert.equal(parsed[0].item,'diamond');assert.equal(parsed[1].quantity,'4');
-const rocket=vm.runInContext(`craft(byId.get('firework_rocket'))`,scope);
-assert(rocket&&rocket.yield===3,'Rocket ingredients must be normalized by the three-item recipe yield');
-assert(Math.abs(rocket.cost-rocket.lines.reduce((s,l)=>s+l.count*l.price,0)/rocket.yield)<1e-8);
-assert.equal(vm.runInContext(`craft(byId.get('donut_skeleton_spawner'))`,scope),null);
-assert.equal(vm.runInContext('fmt(null)',scope),'—');assert.equal(vm.runInContext('fmt(0)',scope),0);
-for(const [n,out] of [[46860,'46.9K'],[30500,'30.5K'],[48070000,'48.1M'],[8800000,'8.8M'],[999600,'1M'],[-1234,'-1.23K'],[417,417]])assert.equal(vm.runInContext(`fmt(${n})`,scope),out,`fmt(${n})`);
-assert.equal(vm.runInContext('pct(157604.9)',scope),'157,605%');
-assert.equal(data.items.find(d=>d.id==='elytra').flat,true);assert.equal(data.items.find(d=>d.id==='dragon_head').flat,false);
-const flips=vm.runInContext("state.route='flips';state.grade='B';state.query='';state.category='All';state.budget=0;filtered()",scope);
-assert(flips.length>0&&flips.every(d=>['S','A','B'].includes(d.recipe.grade)),'Default flips exclude C/D-grade quotes');
-assert(!flips.some(d=>d.id==='waxed_exposed_copper_chest'));
-assert(vm.runInContext("state.grade='D';filtered()",scope).length>flips.length);
-for(const kind of ['order','auction'])assert(vm.runInContext(`planner('${kind}')`,scope).includes(`data-planner="${kind}"`));
-assert(vm.runInContext("planner('auction')",scope).includes('manual-fee')&&!vm.runInContext("planner('order')",scope).includes('manual-fee'));
-const investmentMarkup=vm.runInContext("state.route='investments';investmentPage()",scope);
-assert.equal((investmentMarkup.match(/data-investment-arrival=/g)||[]).length,3,'Only three featured investment items receive flight entrances');
-for(const id of ['elytra','dragon_head','piglin_head'])assert(new RegExp(`data-item="${id}" data-investment-arrival`).test(investmentMarkup));
-assert(investmentMarkup.includes('data-action="replay-investments"')&&investmentMarkup.includes('data-action="compare-mode"'));
-const overviewMarkup=vm.runInContext("state.route='home';home()",scope);
-assert(!overviewMarkup.includes('data-investment-arrival'),'The overview must keep its normal item display');
-assert.equal(data.spawners.types.length,9);
-assert.deepEqual([...data.spawners.types.find(t=>t.id==='blaze').drops],['blaze_powder']);
-assert.deepEqual([...data.spawners.types.find(t=>t.id==='cow').drops],['beef']);
-assert.deepEqual([...data.spawners.types.find(t=>t.id==='zombified_piglin').drops],['gold_nugget']);
-assert.deepEqual([...data.spawners.types.find(t=>t.id==='skeleton').drops],['bone','arrow']);
-assert.deepEqual([...data.spawners.types.find(t=>t.id==='spider').drops],['string','spider_eye']);
-for(const t of data.spawners.types){assert(data.items.some(d=>d.id===t.icon));for(const id of t.drops)assert(data.items.some(d=>d.id===id));assert(data.items.some(d=>d.id==='donut_'+t.id+'_spawner'&&d.price===null));}
-const estimate=vm.runInContext("spawnerEstimate(10,6,1000000,[{id:'bone',rate:100,price:2},{id:'arrow',rate:50,price:1}])",scope);
-assert.equal(estimate.income,15000);assert.equal(estimate.hourly,2500);assert.equal(estimate.payback,10000000/15000);
-assert.equal(vm.runInContext("spawnerEstimate(10,6,1000000,[{rate:100,price:2},{rate:'',price:1}]).income",scope),null,'Missing secondary rates must not become zero');
-assert.equal(vm.runInContext("spawnerEstimate(10,6,1000000,[{rate:100,price:2},{rate:0,price:''}]).income",scope),12000,'Explicit zero rates exclude a drop');
-assert.equal(vm.runInContext("spawnerEstimate(10,6,'',[{rate:100,price:2}]).payback",scope),null);
-assert.equal(vm.runInContext("spawnerEstimate(10,6,1000000,[{rate:0,price:2}]).payback",scope),null);
-assert.equal(vm.runInContext("spawnerEstimate(1.5,6,1000000,[{rate:100,price:2}]).income",scope),null);
-console.log(`PASS: catalog/provenance, missing-price handling, recipe yield, CSV parsing, ${data.items.filter(d=>d.icon).length} local icons, JavaScript syntax.`);
+const estimate = spawnerEstimate(10, 6, 1000000, [{ id: 'bone', rate: 100, price: 2 }, { id: 'arrow', rate: 50, price: 1 }]);
+assert.equal(estimate.income, 15000); assert.equal(estimate.hourly, 2500); assert.equal(estimate.payback, 10000000 / 15000);
+assert.equal(spawnerEstimate(10, 6, 1000000, [{ rate: 100, price: 2 }, { rate: '', price: 1 }]).income, null, 'Missing secondary rates must not become zero');
+assert.equal(spawnerEstimate(10, 6, 1000000, [{ rate: 100, price: 2 }, { rate: 0, price: '' }]).income, 12000, 'Explicit zero rates exclude a drop');
+assert.equal(spawnerEstimate(10, 6, '', [{ rate: 100, price: 2 }]).payback, null);
+assert.equal(spawnerEstimate(10, 6, 1000000, [{ rate: 0, price: 2 }]).payback, null);
+assert.equal(spawnerEstimate(1.5, 6, 1000000, [{ rate: 100, price: 2 }]).income, null);
+
+// Built site
+if (process.argv.includes('--dist')) {
+  const html = fs.readFileSync('dist/index.html', 'utf8');
+  assert(!/src="\/|href="\/(?!\/)/.test(html), 'Built entry must use relative URLs for static hosting');
+  for (const ref of html.match(/assets\/build\/[^"]+/g) ?? []) assert(fs.existsSync('dist/' + ref), `Missing built file: ${ref}`);
+  assert(fs.existsSync('dist/assets/renders/elytra.png') && fs.existsSync('dist/assets/spawner.png'), 'Public assets must be copied into dist');
+}
+
+console.log(`PASS: catalog/provenance, formatting, recipe yield + grades, CSV import, spawner math, ${data.items.filter((d) => d.icon).length} local icons${process.argv.includes('--dist') ? ', built site' : ''}.`);

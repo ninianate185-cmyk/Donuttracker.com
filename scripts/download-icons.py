@@ -2,7 +2,7 @@
 import pathlib,json,urllib.request,concurrent.futures
 root=pathlib.Path(__file__).resolve().parent.parent
 items=json.loads((root/'data/items-26.1.json').read_text());blocks={x['name'] for x in json.loads((root/'data/blocks-26.1.json').read_text())}
-out=root/'dist/assets/items';out.mkdir(exist_ok=True)
+out=root/'public/assets/items';out.mkdir(exist_ok=True)
 def get(item):
  n=item['name'];p=out/(n+'.png')
  if p.exists():return 1
