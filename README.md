@@ -1,18 +1,25 @@
 # Donuttracker.com
 
-Donut Tracker market prototype.
+Donut SMP market tracker. Six views: overview, item catalog, flips (crafting, order and auction planners), spawner calculator, investments, and watchlist.
 
-Desktop-first, buildless Donut SMP market prototype. Six views: overview, item catalog, crafting and manual flip plans, spawner calculator, investments, and watchlist.
+## Stack
+
+React 19 + Vite + Tailwind CSS 4, with [shadcn/ui](https://ui.shadcn.com) primitives (`src/components/ui/`), animation by [motion](https://motion.dev), and two [Watermelon UI](https://ui.watermelon.sh) components (`continuous-tabs`, `pagination`) adapted to the theme. Install more from either registry with `npx shadcn@latest add <name>` or `npx shadcn@latest add @watermelon/<name>`.
+
+The visual direction ("Night market") lives in the tokens at the top of `src/index.css`: warm charcoal, frosting-pink primary, ember amber, Pixelify Sans display headings over Geist and Geist Mono.
 
 ## Run
 
-Serve `dist/` with `python3 -m http.server 4173 --directory dist`, then open http://127.0.0.1:4173.
+```bash
+npm install
+npm run dev        # http://127.0.0.1:4173 with hot reload
+npm run build      # typecheck, build into dist/, then run the checks against it
+npm run preview    # serve the built dist/
+```
 
 ## Checks
 
-Run `node scripts/check.mjs` to verify catalog integrity, source coverage, price handling, recipe output quantities, CSV parsing, and required assets.
-
-After changing catalog or UI sources, run `python3 scripts/version-assets.py` before checks and deployment. It gives each release's JavaScript and CSS content-addressed filenames, preventing cached pages from mixing older stand-in artwork with a newer UI. Superseded copies in `dist/assets/build/` are removed. `.gitattributes` keeps text assets LF on every platform so hashes match between Windows and other checkouts.
+`npm run check` (`node scripts/check.mjs`) verifies catalog integrity and provenance, missing-price handling, number formatting, recipe output quantities and quote grades, CSV import, spawner math, and that every item image exists. It imports the typed modules in `src/lib/` directly (Node 24 strips types). `npm run build` also runs it with `--dist` to check the built site.
 
 ## Data
 
@@ -24,34 +31,28 @@ After changing catalog or UI sources, run `python3 scripts/version-assets.py` be
 - Import a CSV through Sources & coverage to calculate October volume-weighted sample means. Required columns: item,unitPrice,quantity,timestamp. Use timezone-qualified ISO dates. The imported sample does not establish complete server-wide coverage.
 - Official API documentation: https://api.donutsmp.net. Authorized credentials must stay on a backend; no keys are included or harvested from other sites.
 
-## Persistence and calculations
-
-Watchlists, optional profile names, imported sales samples, and manual plans are stored in browser localStorage. No trades are executed. Recipe costs normalize the ingredient cost by the recipe output count. Spawner returns require the user’s measured rates and purchase price.
-
 ## Update the snapshot
 
-Edit the attributed files in `data/`, then run `python3 scripts/build-catalog.py`. The tool regenerates `dist/catalog.js`. Download optional thumbnails using `python3 scripts/download-icons.py`, then rebuild. Never fill missing observations with zero or generated estimates.
+Edit the attributed files in `data/`, then run `npm run catalog` (`python scripts/build-catalog.py`). It regenerates `src/data/catalog.json`. Item images live in `public/assets/`; refresh them with `python scripts/download-renders.py` (native renders) or `python scripts/download-icons.py` (fallback textures), then rebuild. Never fill missing observations with zero or generated estimates.
 
-## Item artwork and interactions
+## Persistence and calculations
 
-All 1,505 vanilla catalog items use locally hosted, native Minecraft inventory renders from https://github.com/Owen1212055/mc-assets. The pinned source commit and asset list are retained in `data/native-render-source.json`. Run `python3 scripts/download-renders.py` and rebuild the catalog to refresh them.
-
-Investment cards respond to pointer position and include an item viewer with drag/arrow-key tilt, zoom, and reset controls. The skeleton spawner supports drag/arrow-key tilt, click/Enter ember bursts, ambient embers, pause/resume, and reset. Navigation, watchlist stars, buttons, and page changes include restrained motion. Reduced-motion preferences disable ambient motion and effects; deliberate viewer controls remain available. Visual motion never changes the market data.
-
-The Investments page now choreographs Elytra, Dragon Head, Piglin Head, and Enchanted Golden Apple into their cards on entry, with a replay control. This sequence never runs in the overview. Comparison mode accepts 2–3 items, shows a removable selection dock, and opens a side-by-side table of sourced quotes, seven-day changes, monthly coverage, and stack sizes.
-
-The interface includes more than two dozen interactions and motion details: investment arrivals and landing rings; replay feedback; pointer card tilt and lighting; floating item art and shadows; comparison selection and removal; an animated comparison dock; comparison artwork inspection; arrow-key card navigation; watchlist save flights and star bursts; item-to-drawer transitions; drag and arrow-key item tilt; slider and scroll zoom; viewer rotation and double-click reset; sliding navigation and category indicators; page transitions; filtered-row entrances and sorting movement; search focus feedback, staggered suggestions, keyboard suggestion navigation, and clear/Escape shortcuts; recipe ingredient drill-down; slider fills and thumb feedback; calculator output feedback; expanding assumptions; pagination feedback; button magnetism and ripples; toast timers; and the spawner controls described above. Press C on Investments to toggle comparison, or / to focus search.
+Watchlists, imported sales samples, trade plans and spawner inputs are stored in browser localStorage, under the same keys the previous version used, so existing saves carry over. No trades are executed. Recipe costs normalize ingredient cost by the recipe output count.
 
 ## Flips
 
-Crafting flips hide recipes whose output or any ingredient quote is graded C or D by the source, since thin listings produce spreads of thousands of percent. Use the Quote grade filter to widen this to all grades. Order flips plan a buy order against a selling target. Auction flips plan an auction-house listing against a resale target, with an optional user-entered selling fee.
+Crafting flips hide recipes whose output or any ingredient quote is graded C or D by the source, since thin listings produce spreads of thousands of percent. The Quote grade filter widens this. Order flips plan a buy order against a selling target. Auction flips plan an auction-house listing against a resale target, with an optional user-entered selling fee.
+
+## Spawner calculator
+
+Skeleton, Zombie, Spider, Creeper, Pig, Cow, Blaze, Zombified Piglin, and Iron Golem spawners; types, drops and references are in `data/spawners.json`. Each type keeps its own count, hours, purchase price, drop rates and selling prices; Reset clears only the selected type.
+
+Production rates are always user measured. Every included drop needs a rate and a price; a rate of zero excludes a drop, and missing observations never become zero. Payback needs positive income and a purchase price. No spawner purchase price is fabricated.
+
+## Motion and accessibility
+
+Motion is purposeful: sliding nav and tab pills, rolling page numbers, counting KPIs, spring tilt and click-for-embers on the spawner, row re-ordering, and sheet/dialog transitions. `MotionConfig reducedMotion="user"` plus CSS guards turn ambient motion off for reduced-motion users. Keyboard: `⌘K`/`Ctrl K` or `/` opens search, `C` toggles compare on Investments, arrow keys tilt the spawner.
 
 ## Hosting
 
-`.openai/hosting.json` identifies the private Sites deployment. The static entry is `dist/index.html`; hash routes work on ordinary static hosting. GitHub repository: https://github.com/ninianate185-cmyk/Donuttracker.com.
-
-## Spawner calculator coverage
-
-The calculator supports Skeleton, Zombie, Spider, Creeper, Pig, Cow, Blaze, Zombified Piglin, and Iron Golem spawners. Types, drop mappings, and public research references are retained in `data/spawners.json`. Skeleton uses bones and arrows; Spider uses string and spider eyes; Blaze uses blaze powder; Zombified Piglin uses gold nuggets; Cow uses raw beef without leather. Each type retains independent browser-local count, hours, purchase price, drop rates, and selling prices. Reset clears only the selected type.
-
-Production rates are always user measured. All included drops must have a rate and a price; a rate of zero explicitly excludes a drop. Missing observations never silently become zero. Daily revenue sums the contribution of each included drop, and payback requires both positive revenue and a purchase price. The linear calculation assumes that the measured per-spawner rates apply at the entered stack size; it does not reuse a skeleton production curve for other mobs. Imported drop price quotes retain the existing snapshot timestamp. No spawner purchase price is fabricated.
+`.openai/hosting.json` points the Sites deployment at `dist/`. The build uses relative URLs and hash routes, so `dist/` works on any static host. Commit `dist/` after `npm run build` if the host deploys straight from the repository. GitHub repository: https://github.com/ninianate185-cmyk/Donuttracker.com.

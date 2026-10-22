@@ -5,7 +5,7 @@ repo='https://api.github.com/repos/Owen1212055/mc-assets'
 commit=json.load(urllib.request.urlopen(repo+'/commits/main',timeout=25))['sha']
 tree=json.load(urllib.request.urlopen(repo+'/git/trees/'+commit+'?recursive=1',timeout=25))['tree']
 known={x['path'].split('/')[-1]:x for x in tree if x['path'].startswith('item-assets/') and x['path'].endswith('.png')}
-items=json.loads((root/'data/items-26.1.json').read_text());out=root/'dist/assets/renders';out.mkdir(exist_ok=True)
+items=json.loads((root/'data/items-26.1.json').read_text());out=root/'public/assets/renders';out.mkdir(exist_ok=True)
 source={'repository':'https://github.com/Owen1212055/mc-assets','commit':commit,'description':'256 × 256 Minecraft inventory item images, rendered natively by mc-assets.','items':[]}
 requests=[x for x in items if x['name'].upper()+'.png' in known]
 def get(item):
