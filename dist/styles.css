@@ -74,3 +74,10 @@ input[type=range]{appearance:none;-webkit-appearance:none;height:4px;border-radi
 @media(prefers-reduced-motion:reduce){.spawner-glow,.spawner-mob{animation:none}}
 .planner-fields.has-fee{grid-template-columns:2fr 1fr 1fr 1fr 1fr auto}
 @media(max-width:900px){.planner-fields.has-fee{grid-template-columns:1fr 1fr}}
+
+/* Clip the moving mob and its light to the cage's interior, before shared tilt. */
+.native-spawner-cage{isolation:isolate}
+.spawner-interior{position:absolute;inset:0;z-index:0;overflow:hidden;clip-path:polygon(50% 12%,87% 32%,87% 75%,50% 94%,13% 75%,13% 32%);pointer-events:none}
+.native-spawner-stage .native-spawner-cage .spawner-interior>.spawner-mob{position:absolute;inset:28% auto auto 28%;width:44%;height:44%;max-width:none;max-height:none;object-fit:contain;transform-origin:center}
+.native-spawner-cage>.spawner-art{z-index:1}
+.motion-paused .spawner-mob,.motion-paused .spawner-glow{animation-play-state:paused}
