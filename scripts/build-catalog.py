@@ -24,10 +24,12 @@ for i in items:
  if q:matched.add(q['ref'])
  ico,cube=icons.get(name,(None,False))
  if not ico and (dest/'assets/items'/(name+'.png')).exists():ico='items/'+name+'.png';cube=name in blocks
+ rendered=False
+ if (dest/'assets/renders'/(name+'.png')).exists():ico='renders/'+name+'.png';cube=False;rendered=True
  animated=False
  if ico and ico.endswith('.png'):
   header=(dest/'assets'/ico).read_bytes()[:24];w,h=struct.unpack('>II',header[16:24]);animated=h>w*2
- rows.append({'id':name,'name':i['displayName'],'category':category(name),'stack':i['stackSize'],'icon':ico,'cube':cube,'animated':animated,'price':q['price'] if q else None,'change':q['change'] if q else None,'monthlyAverage':None,'source':q['source'] if q else None,'sourceTime':q['sourceTime'] if q else None,'sourceGrade':q['grade'] if q else None,'rounded':bool(q),'variantNote':'Multiple source variants; price not merged' if len(qs)>1 else None})
+ rows.append({'id':name,'name':i['displayName'],'category':category(name),'stack':i['stackSize'],'icon':ico,'cube':cube,'animated':animated,'rendered':rendered,'price':q['price'] if q else None,'change':q['change'] if q else None,'monthlyAverage':None,'source':q['source'] if q else None,'sourceTime':q['sourceTime'] if q else None,'sourceGrade':q['grade'] if q else None,'rounded':bool(q),'variantNote':'Multiple source variants; price not merged' if len(qs)>1 else None})
 for q in quotes:
  if q['ref'] in matched:continue
  slug=re.sub(r'[^a-z0-9]+','_',q['name'].lower()).strip('_')

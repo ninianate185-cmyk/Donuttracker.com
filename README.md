@@ -30,6 +30,12 @@ Watchlists, optional profile names, imported sales samples, and manual plans are
 
 Edit the attributed files in `data/`, then run `python3 scripts/build-catalog.py`. The tool regenerates `dist/catalog.js`. Download optional thumbnails using `python3 scripts/download-icons.py`, then rebuild. Never fill missing observations with zero or generated estimates.
 
+## Item artwork and interactions
+
+All 1,506 vanilla catalog items use locally hosted, native Minecraft inventory renders from https://github.com/Owen1212055/mc-assets. The pinned source commit and asset list are retained in `data/native-render-source.json`. Run `python3 scripts/download-renders.py` and rebuild the catalog to refresh them.
+
+Investment cards respond to pointer position and include an item viewer with drag/arrow-key tilt, zoom, and reset controls. The skeleton spawner supports drag/arrow-key tilt, click/Enter ember bursts, ambient embers, pause/resume, and reset. Navigation, watchlist stars, buttons, and page changes include restrained motion. Reduced-motion preferences disable ambient motion and effects; deliberate viewer controls remain available. Visual motion never changes the market data.
+
 ## Hosting
 
 `.openai/hosting.json` identifies the private Sites deployment. The static entry is `dist/index.html`; hash routes work on ordinary static hosting. GitHub repository: https://github.com/ninianate185-cmyk/Donuttracker.com.
