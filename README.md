@@ -1,10 +1,16 @@
-# Donut Tracker
+# Donuttracker.com
+
+Donut Tracker market prototype.
 
 Desktop-first, buildless Donut SMP market prototype. Six views: overview, item catalog, crafting and manual flip plans, spawner calculator, investments, and watchlist.
 
 ## Run
 
 Serve `dist/` with `python3 -m http.server 4173 --directory dist`, then open http://127.0.0.1:4173.
+
+## Checks
+
+Run `node scripts/check.mjs` to verify catalog integrity, source coverage, price handling, recipe output quantities, CSV parsing, and required assets.
 
 ## Data
 
