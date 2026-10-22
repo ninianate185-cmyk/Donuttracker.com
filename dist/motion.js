@@ -58,7 +58,7 @@
   const tasks=cards.map(async(card,i)=>{
    card.classList.add('visible');const arrival=card.querySelector('.item-arrival'),img=arrival.querySelector('img');arrival.getAnimations().forEach(a=>a.cancel());
    if(reduce.matches)return;try{await img.decode()}catch{}if(!root.isConnected||entranceRuns.get(root)!==run)return;
-   const x=[-Math.min(innerWidth*.4,440),-65,Math.min(innerWidth*.4,440)][i],y=[-150,-235,-165][i],r=[-26,19,29][i];
+   const x=[-Math.min(innerWidth*.4,440),-65,Math.min(innerWidth*.4,440),Math.min(innerWidth*.32,340)][i],y=[-150,-235,-165,-245][i],r=[-26,19,29,-32][i];
    const animation=arrival.animate([{transform:`translate3d(${x}px,${y}px,0) rotate(${r}deg) scale(.55)`,opacity:0,filter:'blur(7px)'},{transform:`translate3d(${x*.27}px,${y*.28}px,0) rotate(${r*.25}deg) scale(.86)`,opacity:1,filter:'blur(0)',offset:.56},{transform:'translate3d(0,7px,0) rotate(-2deg) scale(1.04)',opacity:1,offset:.84},{transform:'translate3d(0,0,0) rotate(0deg) scale(1)',opacity:1}],{duration:1150,delay:140+i*155,easing:'cubic-bezier(.18,.72,.22,1)',fill:'backwards'});
    try{await animation.finished;if(entranceRuns.get(root)!==run)return;const ring=document.createElement('span');ring.className='arrival-ring';ring.setAttribute('aria-hidden','true');card.querySelector('.item-stage').append(ring);ring.addEventListener('animationend',()=>ring.remove(),{once:true});card.querySelector('.card-price').animate([{opacity:.5,transform:'translateY(5px)'},{opacity:1,transform:'translateY(0)'}],{duration:360})}catch{}
   });

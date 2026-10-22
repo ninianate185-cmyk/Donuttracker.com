@@ -38,8 +38,8 @@ assert(Math.abs(rocket.cost-rocket.lines.reduce((s,l)=>s+l.count*l.price,0)/rock
 assert.equal(vm.runInContext(`craft(byId.get('donut_skeleton_spawner'))`,scope),null);
 assert.equal(vm.runInContext('fmt(null)',scope),'—');assert.equal(vm.runInContext('fmt(0)',scope),0);
 const investmentMarkup=vm.runInContext("state.route='investments';investmentPage()",scope);
-assert.equal((investmentMarkup.match(/data-investment-arrival=/g)||[]).length,3,'Only three featured investment items receive flight entrances');
-for(const id of ['elytra','dragon_head','piglin_head'])assert(new RegExp(`data-item="${id}" data-investment-arrival`).test(investmentMarkup));
+assert.equal((investmentMarkup.match(/data-investment-arrival=/g)||[]).length,4,'All four featured investment items receive flight entrances');
+for(const id of ['elytra','dragon_head','piglin_head','enchanted_golden_apple'])assert(new RegExp(`data-item="${id}" data-investment-arrival`).test(investmentMarkup));
 assert(investmentMarkup.includes('data-action="replay-investments"')&&investmentMarkup.includes('data-action="compare-mode"'));
 const overviewMarkup=vm.runInContext("state.route='home';home()",scope);
 assert(!overviewMarkup.includes('data-investment-arrival'),'The overview must keep its normal item display');
