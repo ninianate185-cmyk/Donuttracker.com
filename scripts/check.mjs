@@ -9,14 +9,15 @@ new vm.Script(js);
 new vm.Script(fs.readFileSync('dist/motion.js','utf8'));
 vm.runInContext(js.slice(0,js.indexOf("document.addEventListener('click'")),scope);
 const data=scope.window.DT_DATA;
-assert.equal(data.meta.catalogCount,1506);
+assert.equal(data.meta.catalogCount,1505,'Java 26.1 registry minus Air');
+assert(!data.items.some(d=>d.id==='air'),'Air is not a tradeable item');
 assert.equal(data.items.length,new Set(data.items.map(d=>d.id)).size,'IDs must be unique');
 assert.equal(data.items.filter(d=>Number.isFinite(d.price)).length,1404);
 assert(data.items.every(d=>d.price===null||d.price>0));
 assert(data.items.filter(d=>d.price!==null).every(d=>d.source&&d.sourceTime),'Every quote must retain provenance');
 assert(data.items.every(d=>d.monthlyAverage===null),'No monthly average can be invented from a current quote');
 for(const d of data.items)if(d.icon)assert(fs.existsSync('dist/assets/'+d.icon),`Missing icon: ${d.icon}`);
-assert.equal(data.items.filter(d=>d.rendered).length,1506,'Every vanilla registry entry must have its native inventory render');
+assert.equal(data.items.filter(d=>d.rendered).length,1505,'Every vanilla registry entry must have its native inventory render');
 assert.equal(data.items.find(d=>d.id==='netherite_ingot').icon,'renders/netherite_ingot.png');
 for(const id of ['dragon_head','piglin_head','player_head','zombie_head','creeper_head','skeleton_skull','wither_skeleton_skull','bone_block']){
  const d=data.items.find(d=>d.id===id);
@@ -24,6 +25,7 @@ for(const id of ['dragon_head','piglin_head','player_head','zombie_head','creepe
  assert.equal(d.cube,false,'Native model renders must not receive the legacy flat-texture skew');
 }
 const html=fs.readFileSync('dist/index.html','utf8');
+for(const f of fs.readdirSync('dist/assets/build'))assert(html.includes('assets/build/'+f),`Unreferenced release copy: ${f}`);
 for(const name of ['styles','catalog','motion','app']){
  const path=html.match(new RegExp(`assets/build/${name}-[a-f0-9]{16}\\.(?:js|css)`))?.[0];
  assert(path&&fs.existsSync('dist/'+path),`Missing versioned ${name} entry`);
@@ -37,6 +39,15 @@ assert(rocket&&rocket.yield===3,'Rocket ingredients must be normalized by the th
 assert(Math.abs(rocket.cost-rocket.lines.reduce((s,l)=>s+l.count*l.price,0)/rocket.yield)<1e-8);
 assert.equal(vm.runInContext(`craft(byId.get('donut_skeleton_spawner'))`,scope),null);
 assert.equal(vm.runInContext('fmt(null)',scope),'—');assert.equal(vm.runInContext('fmt(0)',scope),0);
+for(const [n,out] of [[46860,'46.9K'],[30500,'30.5K'],[48070000,'48.1M'],[8800000,'8.8M'],[999600,'1M'],[-1234,'-1.23K'],[417,417]])assert.equal(vm.runInContext(`fmt(${n})`,scope),out,`fmt(${n})`);
+assert.equal(vm.runInContext('pct(157604.9)',scope),'157,605%');
+assert.equal(data.items.find(d=>d.id==='elytra').flat,true);assert.equal(data.items.find(d=>d.id==='dragon_head').flat,false);
+const flips=vm.runInContext("state.route='flips';state.grade='B';state.query='';state.category='All';state.budget=0;filtered()",scope);
+assert(flips.length>0&&flips.every(d=>['S','A','B'].includes(d.recipe.grade)),'Default flips exclude C/D-grade quotes');
+assert(!flips.some(d=>d.id==='waxed_exposed_copper_chest'));
+assert(vm.runInContext("state.grade='D';filtered()",scope).length>flips.length);
+for(const kind of ['order','auction'])assert(vm.runInContext(`planner('${kind}')`,scope).includes(`data-planner="${kind}"`));
+assert(vm.runInContext("planner('auction')",scope).includes('manual-fee')&&!vm.runInContext("planner('order')",scope).includes('manual-fee'));
 const investmentMarkup=vm.runInContext("state.route='investments';investmentPage()",scope);
 assert.equal((investmentMarkup.match(/data-investment-arrival=/g)||[]).length,3,'Only three featured investment items receive flight entrances');
 for(const id of ['elytra','dragon_head','piglin_head'])assert(new RegExp(`data-item="${id}" data-investment-arrival`).test(investmentMarkup));

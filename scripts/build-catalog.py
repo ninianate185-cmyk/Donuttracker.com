@@ -21,6 +21,8 @@ def category(n):
  return 'Materials'
 spawners=json.loads((research/'spawners.json').read_text())
 rows=[];matched=set();idx={i['id']:i['name'] for i in items}
+# Air is a registry entry, not an obtainable or tradeable item.
+items=[i for i in items if i['name']!='air']
 for i in items:
  name=i['name'];qs=byname.get(norm(i['displayName']),[])
  # Duplicate source labels do not establish the exact variant; don't merge their values.
@@ -33,7 +35,7 @@ for i in items:
  animated=False
  if ico and ico.endswith('.png'):
   header=(dest/'assets'/ico).read_bytes()[:24];w,h=struct.unpack('>II',header[16:24]);animated=h>w*2
- rows.append({'id':name,'name':i['displayName'],'category':category(name),'stack':i['stackSize'],'icon':ico,'cube':cube,'animated':animated,'rendered':rendered,'price':q['price'] if q else None,'change':q['change'] if q else None,'monthlyAverage':None,'source':q['source'] if q else None,'sourceTime':q['sourceTime'] if q else None,'sourceGrade':q['grade'] if q else None,'rounded':bool(q),'variantNote':'Multiple source variants; price not merged' if len(qs)>1 else None})
+ rows.append({'id':name,'name':i['displayName'],'category':category(name),'stack':i['stackSize'],'icon':ico,'cube':cube,'animated':animated,'rendered':rendered,'flat':rendered and name not in blocks,'price':q['price'] if q else None,'change':q['change'] if q else None,'monthlyAverage':None,'source':q['source'] if q else None,'sourceTime':q['sourceTime'] if q else None,'sourceGrade':q['grade'] if q else None,'rounded':bool(q),'variantNote':'Multiple source variants; price not merged' if len(qs)>1 else None})
 for q in quotes:
  if q['ref'] in matched:continue
  slug=re.sub(r'[^a-z0-9]+','_',q['name'].lower()).strip('_')
@@ -59,5 +61,5 @@ for target,options in json.loads((research/'recipes-26.1.json').read_text()).ite
 # Public Donut.Auction displayed values are retained as separately attributed observations.
 alternates=json.loads((research/'auction-observations-2026-10-21.json').read_text())
 meta={'catalogVersion':'Minecraft Java 26.1','catalogCount':len(items),'source':'https://donutsmpterminal.com/all_items','sourceTime':'2026-10-21T17:49:00Z','retrievedOn':'2026-10-21','priceCount':sum(x['price'] is not None for x in rows),'monthlyCoverage':0,'notes':'Public rounded quoted prices. No verified month-to-date transaction history is included. Missing prices are null, never zero. Custom server items are only those identified in public source material.'}
-(dest/'catalog.js').write_text('window.DT_DATA='+json.dumps({'meta':meta,'items':rows,'recipes':recipes,'alternates':alternates,'spawners':spawners},separators=(',',':'))+';\n')
+(dest/'catalog.js').write_text('window.DT_DATA='+json.dumps({'meta':meta,'items':rows,'recipes':recipes,'alternates':alternates,'spawners':spawners},separators=(',',':'))+';\n',encoding='utf-8',newline='\n')
 print(json.dumps({'catalog':len(items),'combined':len(rows),'prices':meta['priceCount'],'recipes':len(recipes),'alternateQuotes':len(alternates),'monthlyAverages':0}))
