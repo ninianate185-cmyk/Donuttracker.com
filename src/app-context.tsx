@@ -4,6 +4,7 @@ export interface AppActions {
   openItem: (id: string) => void
   openSearch: () => void
   openSources: () => void
+  openTipJar: () => void
 }
 
 export const AppContext = createContext<AppActions | null>(null)

@@ -55,16 +55,19 @@ export function SpawnerStage({ type, compact = false }: { type: SpawnerType; com
           <img src={asset('spawner.png')} alt="Skeleton spawner" width={1402} height={1122} draggable={false} className={cn('h-auto drop-shadow-[0_30px_25px_#0007]', compact ? 'w-[300px]' : 'w-[min(420px,80vw)]')} />
         ) : (
           <div className={cn('relative grid aspect-square place-items-center', compact ? 'w-56' : 'w-[min(300px,70vw)]')}>
-            {mob?.icon && (
-              <motion.img
-                src={asset(mob.icon)}
-                alt=""
-                draggable={false}
-                animate={reduce ? undefined : { rotateY: [0, 360] }}
-                transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
-                className={cn('absolute top-[28%] left-[28%] size-[44%] object-contain brightness-125 drop-shadow-[0_0_12px_#ffb54799]', mob.flat && 'pixelated')}
-              />
-            )}
+            {/* Clip the spinning mob to the cage's interior so it never pokes through the bars' outline. */}
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden [clip-path:polygon(50%_12%,87%_32%,87%_75%,50%_94%,13%_75%,13%_32%)]">
+              {mob?.icon && (
+                <motion.img
+                  src={asset(mob.icon)}
+                  alt=""
+                  draggable={false}
+                  animate={reduce ? undefined : { rotateY: [0, 360] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+                  className={cn('absolute top-[28%] left-[28%] size-[44%] object-contain brightness-125 drop-shadow-[0_0_12px_#ffb54799]', mob.flat && 'pixelated')}
+                />
+              )}
+            </div>
             <img src={asset('renders/spawner.png')} alt={`${type.name} spawner`} width={256} height={256} draggable={false} className="pixelated relative size-full drop-shadow-[0_22px_17px_#0009]" />
           </div>
         )}

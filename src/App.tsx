@@ -8,6 +8,7 @@ import { AppShell } from '@/components/app-shell'
 import { CommandMenu } from '@/components/command-menu'
 import { ItemSheet } from '@/components/item-sheet'
 import { SourcesDialog } from '@/components/sources-dialog'
+import { TipJarDialog } from '@/components/tip-jar'
 import Overview from '@/pages/overview'
 import Market from '@/pages/market'
 import Flips from '@/pages/flips'
@@ -21,8 +22,10 @@ export default function App() {
   const [sources, setSources] = useState(false)
   const openItem = useCallback((id: string) => setItemId(id), [])
   const openSearch = useCallback(() => setSearch(true), [])
+  const [tipJar, setTipJar] = useState(false)
   const openSources = useCallback(() => setSources(true), [])
-  const actions = useMemo(() => ({ openItem, openSearch, openSources }), [openItem, openSearch, openSources])
+  const openTipJar = useCallback(() => setTipJar(true), [])
+  const actions = useMemo(() => ({ openItem, openSearch, openSources, openTipJar }), [openItem, openSearch, openSources, openTipJar])
 
   return (
     <MotionConfig reducedMotion="user">
@@ -43,6 +46,7 @@ export default function App() {
             <CommandMenu open={search} onOpenChange={setSearch} onItem={openItem} />
             <ItemSheet id={itemId} onOpenChange={(o) => !o && setItemId(null)} onItem={openItem} />
             <SourcesDialog open={sources} onOpenChange={setSources} />
+            <TipJarDialog open={tipJar} onOpenChange={setTipJar} />
           </AppContext.Provider>
         </HashRouter>
         <Toaster position="bottom-right" />

@@ -9,6 +9,7 @@ import { passesGrade } from '@/lib/market.ts'
 import { fmt, num } from '@/lib/format.ts'
 import { cn } from '@/lib/utils'
 import { Change, ItemIcon, useWatch } from './bits'
+import { TipJarButton } from './tip-jar'
 
 const NAV = [
   { to: '/', label: 'Overview' },
@@ -73,7 +74,7 @@ function Ticker() {
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { openSearch, openSources } = useApp()
+  const { openSearch, openSources, openTipJar } = useApp()
   const { ids } = useWatch()
   const location = useLocation()
 
@@ -109,7 +110,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               donut<span className="text-primary">tracker</span>
             </span>
           </NavLink>
-          <nav aria-label="Main" className="ml-4 hidden items-center gap-1 md:flex">
+          <nav aria-label="Main" className="ml-4 hidden items-center gap-1 lg:flex">
             {NAV.map((n) => (
               <NavLink key={n.to} to={n.to} end={n.to === '/'} className="relative rounded-md px-3 py-1.5 text-sm">
                 {({ isActive }) => (
@@ -125,14 +126,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={openSearch}
-            className="hidden h-9 min-w-60 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm text-muted-foreground transition hover:border-input hover:text-foreground sm:flex"
+            className="hidden h-9 min-w-40 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm whitespace-nowrap text-muted-foreground transition hover:border-input hover:text-foreground sm:flex xl:min-w-60"
           >
-            <Search className="size-4" /> Search {num(ITEMS.length)} items
+            <Search className="size-4" /> Search<span className="max-xl:hidden"> {num(ITEMS.length)} items</span>
             <Kbd className="ml-auto">⌘K</Kbd>
           </button>
           <button type="button" onClick={openSearch} aria-label="Search items" className="grid size-10 place-items-center rounded-lg border border-border sm:hidden">
             <Search className="size-4" />
           </button>
+          <TipJarButton onClick={openTipJar} />
           <NavLink
             to="/watchlist"
             aria-label={`Watchlist, ${ids.length} saved`}
@@ -156,7 +158,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
       <Ticker />
 
-      <main id="content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 pt-8 pb-28 outline-none sm:px-8 sm:pt-10 md:pb-16">
+      <main id="content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 pt-8 pb-28 outline-none sm:px-8 sm:pt-10 lg:pb-16">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={location.pathname} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}>
             {children}
@@ -164,7 +166,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </AnimatePresence>
       </main>
 
-      <footer className="border-t border-border pb-24 md:pb-0">
+      <footer className="border-t border-border pb-24 lg:pb-0">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-6 text-xs text-muted-foreground sm:px-8">
           <span>Independent community project. Not affiliated with Donut SMP.</span>
           <span className="flex-1" />
@@ -180,7 +182,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </footer>
 
-      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-background/95 px-2 pt-1 pb-[max(env(safe-area-inset-bottom),10px)] backdrop-blur-md md:hidden">
+      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-background/95 px-2 pt-1 pb-[max(env(safe-area-inset-bottom),10px)] backdrop-blur-md lg:hidden">
         {TABS.map((t) => (
           <NavLink key={t.to} to={t.to} end={t.to === '/'} className="relative flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 text-[11px]">
             {({ isActive }) => (
