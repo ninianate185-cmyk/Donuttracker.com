@@ -59,3 +59,18 @@ input[type=range]{appearance:none;-webkit-appearance:none;height:4px;border-radi
 @media(prefers-reduced-motion:reduce){.spawner-type,.spawner-type .item-icon{transition:none}.spawner-type:hover{transform:none}.drop-input-row{animation:none}}
 
 .spawner-page-grid .spawner-visual .stage-type-badge .item-icon{position:static;inset:auto;width:25px;height:25px;max-width:25px;max-height:25px;object-fit:contain;flex-shrink:0}
+.item-icon.native-render.flat-render,.spawner-mob.flat-render{image-rendering:pixelated!important}
+.investment-card .item-stage .item-icon.flat-render{width:96px;height:96px;filter:drop-shadow(0 0 1px #ffffff38) drop-shadow(0 10px 10px #0004)}
+.comparison-art .item-icon.flat-render{filter:drop-shadow(0 0 1px #ffffff38)}
+@media(max-width:900px){.investment-card .item-stage .item-icon.flat-render{width:80px;height:80px}}
+@media(max-width:640px){.investment-card .item-stage .item-icon.flat-render{width:80px;height:80px}}
+.native-spawner-stage .spawner-object{display:grid;place-items:center}
+.native-spawner-cage{position:relative;width:min(100%,320px);aspect-ratio:1;display:grid;place-items:center}
+.native-spawner-stage.spawner-interactive .native-spawner-cage .spawner-art{position:relative!important;width:100%!important;height:100%!important;image-rendering:pixelated;filter:drop-shadow(0 0 1px #ffffff30) drop-shadow(0 22px 17px #0006)}
+.spawner-glow{position:absolute;inset:14%;border-radius:50%;background:radial-gradient(circle,#ffb86b99,#d0569a40 45%,transparent 72%);filter:blur(8px);animation:spawner-glow 3.4s ease-in-out infinite}
+.spawner-mob{position:absolute;width:44%;height:44%;object-fit:contain;top:28%;left:28%;filter:brightness(1.25) drop-shadow(0 0 12px #ffb86b99);animation:spawner-mob-spin 6s linear infinite}
+@keyframes spawner-glow{50%{opacity:.6}}
+@keyframes spawner-mob-spin{50%{transform:scale(.92) rotateY(180deg)}100%{transform:rotateY(360deg)}}
+@media(prefers-reduced-motion:reduce){.spawner-glow,.spawner-mob{animation:none}}
+.planner-fields.has-fee{grid-template-columns:2fr 1fr 1fr 1fr 1fr auto}
+@media(max-width:900px){.planner-fields.has-fee{grid-template-columns:1fr 1fr}}

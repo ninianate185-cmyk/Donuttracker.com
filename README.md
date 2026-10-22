@@ -12,11 +12,11 @@ Serve `dist/` with `python3 -m http.server 4173 --directory dist`, then open htt
 
 Run `node scripts/check.mjs` to verify catalog integrity, source coverage, price handling, recipe output quantities, CSV parsing, and required assets.
 
-After changing catalog or UI sources, run `python3 scripts/version-assets.py` before checks and deployment. It gives each release's JavaScript and CSS content-addressed filenames, preventing cached pages from mixing older stand-in artwork with a newer UI.
+After changing catalog or UI sources, run `python3 scripts/version-assets.py` before checks and deployment. It gives each release's JavaScript and CSS content-addressed filenames, preventing cached pages from mixing older stand-in artwork with a newer UI. Superseded copies in `dist/assets/build/` are removed. `.gitattributes` keeps text assets LF on every platform so hashes match between Windows and other checkouts.
 
 ## Data
 
-- All 1,506 Minecraft Java 26.1 registry entries, plus identified server items and source variants: 1,596 searchable entries total.
+- All 1,505 Minecraft Java 26.1 registry items (the registry's `air` entry is excluded), plus identified server items and source variants: 1,595 searchable entries total.
 - 1,404 rounded public market quotes from https://donutsmpterminal.com/all_items, published October 21, 2026 at 17:49 UTC. This is a snapshot, not a live feed.
 - 25 alternate displayed values from https://donut.auction retained separately with source links. Its transaction history may be stale or incomplete.
 - Catalog and recipes: https://github.com/PrismarineJS/minecraft-data.
@@ -34,13 +34,17 @@ Edit the attributed files in `data/`, then run `python3 scripts/build-catalog.py
 
 ## Item artwork and interactions
 
-All 1,506 vanilla catalog items use locally hosted, native Minecraft inventory renders from https://github.com/Owen1212055/mc-assets. The pinned source commit and asset list are retained in `data/native-render-source.json`. Run `python3 scripts/download-renders.py` and rebuild the catalog to refresh them.
+All 1,505 vanilla catalog items use locally hosted, native Minecraft inventory renders from https://github.com/Owen1212055/mc-assets. The pinned source commit and asset list are retained in `data/native-render-source.json`. Run `python3 scripts/download-renders.py` and rebuild the catalog to refresh them.
 
 Investment cards respond to pointer position and include an item viewer with drag/arrow-key tilt, zoom, and reset controls. The skeleton spawner supports drag/arrow-key tilt, click/Enter ember bursts, ambient embers, pause/resume, and reset. Navigation, watchlist stars, buttons, and page changes include restrained motion. Reduced-motion preferences disable ambient motion and effects; deliberate viewer controls remain available. Visual motion never changes the market data.
 
 The Investments page now choreographs Elytra, Dragon Head, Piglin Head, and Enchanted Golden Apple into their cards on entry, with a replay control. This sequence never runs in the overview. Comparison mode accepts 2–3 items, shows a removable selection dock, and opens a side-by-side table of sourced quotes, seven-day changes, monthly coverage, and stack sizes.
 
 The interface includes more than two dozen interactions and motion details: investment arrivals and landing rings; replay feedback; pointer card tilt and lighting; floating item art and shadows; comparison selection and removal; an animated comparison dock; comparison artwork inspection; arrow-key card navigation; watchlist save flights and star bursts; item-to-drawer transitions; drag and arrow-key item tilt; slider and scroll zoom; viewer rotation and double-click reset; sliding navigation and category indicators; page transitions; filtered-row entrances and sorting movement; search focus feedback, staggered suggestions, keyboard suggestion navigation, and clear/Escape shortcuts; recipe ingredient drill-down; slider fills and thumb feedback; calculator output feedback; expanding assumptions; pagination feedback; button magnetism and ripples; toast timers; and the spawner controls described above. Press C on Investments to toggle comparison, or / to focus search.
+
+## Flips
+
+Crafting flips hide recipes whose output or any ingredient quote is graded C or D by the source, since thin listings produce spreads of thousands of percent. Use the Quote grade filter to widen this to all grades. Order flips plan a buy order against a selling target. Auction flips plan an auction-house listing against a resale target, with an optional user-entered selling fee.
 
 ## Hosting
 
