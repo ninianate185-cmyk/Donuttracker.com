@@ -1,0 +1,29 @@
+# Donut Tracker
+
+Desktop-first, buildless Donut SMP market prototype. Six views: overview, item catalog, crafting and manual flip plans, spawner calculator, investments, and watchlist.
+
+## Run
+
+Serve `dist/` with `python3 -m http.server 4173 --directory dist`, then open http://127.0.0.1:4173.
+
+## Data
+
+- All 1,506 Minecraft Java 26.1 registry entries, plus identified server items and source variants: 1,588 searchable entries total.
+- 1,404 rounded public market quotes from https://donutsmpterminal.com/all_items, published October 21, 2026 at 17:49 UTC. This is a snapshot, not a live feed.
+- 25 alternate displayed values from https://donut.auction retained separately with source links. Its transaction history may be stale or incomplete.
+- Catalog and recipes: https://github.com/PrismarineJS/minecraft-data.
+- No verified October transaction dataset is included. Missing monthly averages and missing prices remain unavailable; no fake history is generated.
+- Import a CSV through Sources & coverage to calculate October volume-weighted sample means. Required columns: item,unitPrice,quantity,timestamp. Use timezone-qualified ISO dates. The imported sample does not establish complete server-wide coverage.
+- Official API documentation: https://api.donutsmp.net. Authorized credentials must stay on a backend; no keys are included or harvested from other sites.
+
+## Persistence and calculations
+
+Watchlists, optional profile names, imported sales samples, and manual plans are stored in browser localStorage. No trades are executed. Recipe costs normalize the ingredient cost by the recipe output count. Spawner returns require the user’s measured rates and purchase price.
+
+## Update the snapshot
+
+Edit the attributed files in `data/`, then run `python3 scripts/build-catalog.py`. The tool regenerates `dist/catalog.js`. Download optional thumbnails using `python3 scripts/download-icons.py`, then rebuild. Never fill missing observations with zero or generated estimates.
+
+## Hosting
+
+`.openai/hosting.json` identifies the private Sites deployment. The static entry is `dist/index.html`; hash routes work on ordinary static hosting. GitHub repository: https://github.com/ninianate185-cmyk/Donuttracker.com.

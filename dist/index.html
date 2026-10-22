@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#111411">
+  <title>Donut Tracker — Market overview</title>
+  <meta name="description" content="Search the Minecraft item catalog, compare sourced Donut SMP market quotes, calculate crafting costs, and plan spawner returns.">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="catalog.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <div class="scroll-progress" aria-hidden="true"></div>
+  <header class="site-header" id="header">
+    <a class="brand" href="#/" aria-label="Donut Tracker home"><span class="donut" aria-hidden="true"></span><span>DONUT<span class="brand-light">TRACKER</span></span></a>
+    <nav class="desktop-nav" aria-label="Main navigation">
+      <a href="#/" data-route="home">Overview</a><a href="#/market" data-route="market">Market</a><a href="#/flips" data-route="flips">Flips</a><a href="#/spawners" data-route="spawners">Spawners</a><a href="#/investments" data-route="investments">Investments</a>
+    </nav>
+    <div class="header-actions"><span class="demo-badge"><i></i>Price snapshot</span><a class="icon-btn watch-nav" href="#/watchlist" aria-label="Open watchlist"><span class="icon-star">☆</span><b id="watch-count">0</b></a><button class="profile-button" data-action="profile">Profile <span>↗</span></button><button class="icon-btn mobile-toggle" aria-label="Open navigation" aria-expanded="false" data-action="menu">☰</button></div>
+  </header>
+  <main id="content" tabindex="-1"></main>
+  <footer class="site-footer"><div class="footer-bottom"><span>Independent community project. Not affiliated with Donut SMP.</span><div><a href="https://donutsmpterminal.com/all_items" target="_blank" rel="noopener noreferrer">Price source: DonutSMP Terminal ↗</a><a href="https://donut.auction" target="_blank" rel="noopener noreferrer">Donut.Auction ↗</a><button data-info="data">Sources & coverage</button><a href="#" data-action="top">Back to top ↑</a></div></div></footer>
+  <div id="modal-root"></div><div class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
