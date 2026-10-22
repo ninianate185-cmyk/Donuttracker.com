@@ -16,7 +16,7 @@ After changing catalog or UI sources, run `python3 scripts/version-assets.py` be
 
 ## Data
 
-- All 1,506 Minecraft Java 26.1 registry entries, plus identified server items and source variants: 1,588 searchable entries total.
+- All 1,506 Minecraft Java 26.1 registry entries, plus identified server items and source variants: 1,596 searchable entries total.
 - 1,404 rounded public market quotes from https://donutsmpterminal.com/all_items, published October 21, 2026 at 17:49 UTC. This is a snapshot, not a live feed.
 - 25 alternate displayed values from https://donut.auction retained separately with source links. Its transaction history may be stale or incomplete.
 - Catalog and recipes: https://github.com/PrismarineJS/minecraft-data.
@@ -45,3 +45,9 @@ The interface includes more than two dozen interactions and motion details: inve
 ## Hosting
 
 `.openai/hosting.json` identifies the private Sites deployment. The static entry is `dist/index.html`; hash routes work on ordinary static hosting. GitHub repository: https://github.com/ninianate185-cmyk/Donuttracker.com.
+
+## Spawner calculator coverage
+
+The calculator supports Skeleton, Zombie, Spider, Creeper, Pig, Cow, Blaze, Zombified Piglin, and Iron Golem spawners. Types, drop mappings, and public research references are retained in `data/spawners.json`. Skeleton uses bones and arrows; Spider uses string and spider eyes; Blaze uses blaze powder; Zombified Piglin uses gold nuggets; Cow uses raw beef without leather. Each type retains independent browser-local count, hours, purchase price, drop rates, and selling prices. Reset clears only the selected type.
+
+Production rates are always user measured. All included drops must have a rate and a price; a rate of zero explicitly excludes a drop. Missing observations never silently become zero. Daily revenue sums the contribution of each included drop, and payback requires both positive revenue and a purchase price. The linear calculation assumes that the measured per-spawner rates apply at the entered stack size; it does not reuse a skeleton production curve for other mobs. Imported drop price quotes retain the existing snapshot timestamp. No spawner purchase price is fabricated.

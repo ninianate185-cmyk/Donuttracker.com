@@ -43,4 +43,18 @@ for(const id of ['elytra','dragon_head','piglin_head'])assert(new RegExp(`data-i
 assert(investmentMarkup.includes('data-action="replay-investments"')&&investmentMarkup.includes('data-action="compare-mode"'));
 const overviewMarkup=vm.runInContext("state.route='home';home()",scope);
 assert(!overviewMarkup.includes('data-investment-arrival'),'The overview must keep its normal item display');
+assert.equal(data.spawners.types.length,9);
+assert.deepEqual([...data.spawners.types.find(t=>t.id==='blaze').drops],['blaze_powder']);
+assert.deepEqual([...data.spawners.types.find(t=>t.id==='cow').drops],['beef']);
+assert.deepEqual([...data.spawners.types.find(t=>t.id==='zombified_piglin').drops],['gold_nugget']);
+assert.deepEqual([...data.spawners.types.find(t=>t.id==='skeleton').drops],['bone','arrow']);
+assert.deepEqual([...data.spawners.types.find(t=>t.id==='spider').drops],['string','spider_eye']);
+for(const t of data.spawners.types){assert(data.items.some(d=>d.id===t.icon));for(const id of t.drops)assert(data.items.some(d=>d.id===id));assert(data.items.some(d=>d.id==='donut_'+t.id+'_spawner'&&d.price===null));}
+const estimate=vm.runInContext("spawnerEstimate(10,6,1000000,[{id:'bone',rate:100,price:2},{id:'arrow',rate:50,price:1}])",scope);
+assert.equal(estimate.income,15000);assert.equal(estimate.hourly,2500);assert.equal(estimate.payback,10000000/15000);
+assert.equal(vm.runInContext("spawnerEstimate(10,6,1000000,[{rate:100,price:2},{rate:'',price:1}]).income",scope),null,'Missing secondary rates must not become zero');
+assert.equal(vm.runInContext("spawnerEstimate(10,6,1000000,[{rate:100,price:2},{rate:0,price:''}]).income",scope),12000,'Explicit zero rates exclude a drop');
+assert.equal(vm.runInContext("spawnerEstimate(10,6,'',[{rate:100,price:2}]).payback",scope),null);
+assert.equal(vm.runInContext("spawnerEstimate(10,6,1000000,[{rate:0,price:2}]).payback",scope),null);
+assert.equal(vm.runInContext("spawnerEstimate(1.5,6,1000000,[{rate:100,price:2}]).income",scope),null);
 console.log(`PASS: catalog/provenance, missing-price handling, recipe yield, CSV parsing, ${data.items.filter(d=>d.icon).length} local icons, JavaScript syntax.`);

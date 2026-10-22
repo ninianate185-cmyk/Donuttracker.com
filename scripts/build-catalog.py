@@ -19,6 +19,7 @@ def category(n):
  if n in blocks:return 'Blocks'
  if any(x in n for x in ['potion','apple','bread','beef','porkchop','stew','soup','carrot','potato','cookie','melon_slice','firework','chicken','mutton','rabbit','honey_bottle','chorus_fruit']):return 'Consumables'
  return 'Materials'
+spawners=json.loads((research/'spawners.json').read_text())
 rows=[];matched=set();idx={i['id']:i['name'] for i in items}
 for i in items:
  name=i['name'];qs=byname.get(norm(i['displayName']),[])
@@ -37,9 +38,9 @@ for q in quotes:
  if q['ref'] in matched:continue
  slug=re.sub(r'[^a-z0-9]+','_',q['name'].lower()).strip('_')
  rows.append({'id':'tracked_'+slug+'_'+q['ref'],'name':q['name'],'category':'Server variants','stack':None,'icon':None,'price':q['price'],'change':q['change'],'monthlyAverage':None,'source':q['source'],'sourceTime':q['sourceTime'],'sourceGrade':q['grade'],'rounded':True,'variantNote':'Source variant; match exact item in game'})
-for n in ['Skeleton Spawner','Shard Axe','Shard Pickaxe','Shard Potion of Haste','Shard Shovel']:
+for n in [*(s['name']+' Spawner' for s in spawners['types']),'Shard Axe','Shard Pickaxe','Shard Potion of Haste','Shard Shovel']:
  if any(x['name']==n for x in rows):continue
- rows.append({'id':'donut_'+re.sub('[^a-z0-9]+','_',n.lower()),'name':n,'category':'DonutSMP','stack':None,'icon':None,'price':None,'change':None,'monthlyAverage':None,'source':'https://donutsmpterminal.com/donutsmp-skeleton-spawner-grinder' if n=='Skeleton Spawner' else 'https://donutsmpterminal.com/all_items','sourceTime':None,'variantNote':'Price not verified'})
+ rows.append({'id':'donut_'+re.sub('[^a-z0-9]+','_',n.lower()),'name':n,'category':'DonutSMP','stack':None,'icon':None,'price':None,'change':None,'monthlyAverage':None,'source':'https://donut.today/wiki/spawners' if n.endswith(' Spawner') else 'https://donutsmpterminal.com/all_items','sourceTime':None,'variantNote':'Price not verified'})
 recipes={}
 for target,options in json.loads((research/'recipes-26.1.json').read_text()).items():
  name=idx.get(int(target));valid=[]
@@ -58,5 +59,5 @@ for target,options in json.loads((research/'recipes-26.1.json').read_text()).ite
 # Public Donut.Auction displayed values are retained as separately attributed observations.
 alternates=json.loads((research/'auction-observations-2026-10-21.json').read_text())
 meta={'catalogVersion':'Minecraft Java 26.1','catalogCount':len(items),'source':'https://donutsmpterminal.com/all_items','sourceTime':'2026-10-21T17:49:00Z','retrievedOn':'2026-10-21','priceCount':sum(x['price'] is not None for x in rows),'monthlyCoverage':0,'notes':'Public rounded quoted prices. No verified month-to-date transaction history is included. Missing prices are null, never zero. Custom server items are only those identified in public source material.'}
-(dest/'catalog.js').write_text('window.DT_DATA='+json.dumps({'meta':meta,'items':rows,'recipes':recipes,'alternates':alternates},separators=(',',':'))+';\n')
+(dest/'catalog.js').write_text('window.DT_DATA='+json.dumps({'meta':meta,'items':rows,'recipes':recipes,'alternates':alternates,'spawners':spawners},separators=(',',':'))+';\n')
 print(json.dumps({'catalog':len(items),'combined':len(rows),'prices':meta['priceCount'],'recipes':len(recipes),'alternateQuotes':len(alternates),'monthlyAverages':0}))

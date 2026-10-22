@@ -86,5 +86,5 @@
  }
  document.addEventListener('pointerdown',ev=>{if(reduce.matches)return;const b=ev.target.closest('.btn');if(!b)return;const r=b.getBoundingClientRect(),p=document.createElement('span');p.className='button-ripple';p.setAttribute('aria-hidden','true');p.style.left=(ev.clientX-r.left)+'px';p.style.top=(ev.clientY-r.top)+'px';b.append(p);p.addEventListener('animationend',()=>p.remove(),{once:true})});
  document.addEventListener('input',ev=>{if(reduce.matches)return;const root=ev.target.closest('[data-calculator],.trade-plan,.manual-planner');if(root)root.querySelectorAll('[data-out="income"],[data-out="payback"],#plan-profit,#manual-profit').forEach(n=>{n.getAnimations?.().forEach(a=>a.cancel());n.animate?.([{opacity:.5,transform:'translateY(3px)'},{opacity:1,transform:'translateY(0)'}],{duration:270,easing:'ease-out'})})});
- window.DonutMotion={mount,burst,captureArt,saveFlight,flyArt,selection,replayInvestments,captureRows,rows};
+ window.DonutMotion={mount,burst,captureArt,saveFlight,flyArt,selection,replayInvestments,captureRows,rows,rangeFill};
 })();

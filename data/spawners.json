@@ -1,0 +1,104 @@
+{
+  "checkedOn": "2026-10-21",
+  "sources": [
+    "https://donut.today/wiki/spawners",
+    "https://www.donutsmpstats.net/",
+    "https://donutpedia.wiki/wiki/Spawner",
+    "https://www.donutstats.net/tools/zombie-spawner-calculator"
+  ],
+  "notes": "Nine documented Donut SMP spawner types. Availability and server behavior may change. No spawner prices or production rates are inferred from vanilla drops or another mob type.",
+  "types": [
+    {
+      "id": "skeleton",
+      "name": "Skeleton",
+      "icon": "skeleton_skull",
+      "drops": [
+        "bone",
+        "arrow"
+      ],
+      "source": "https://donut.today/wiki/spawners",
+      "notes": "Enter measured output for your current farm setup."
+    },
+    {
+      "id": "zombie",
+      "name": "Zombie",
+      "icon": "zombie_head",
+      "drops": [
+        "rotten_flesh"
+      ],
+      "source": "https://donut.today/wiki/spawners",
+      "notes": "Enter measured output for your current farm setup."
+    },
+    {
+      "id": "spider",
+      "name": "Spider",
+      "icon": "spider_spawn_egg",
+      "drops": [
+        "string",
+        "spider_eye"
+      ],
+      "source": "https://donut.today/wiki/spawners",
+      "notes": "Enter measured output for your current farm setup."
+    },
+    {
+      "id": "creeper",
+      "name": "Creeper",
+      "icon": "creeper_head",
+      "drops": [
+        "gunpowder"
+      ],
+      "source": "https://donut.today/wiki/spawners",
+      "notes": "Enter measured output for your current farm setup."
+    },
+    {
+      "id": "pig",
+      "name": "Pig",
+      "icon": "pig_spawn_egg",
+      "drops": [
+        "porkchop"
+      ],
+      "source": "https://donut.today/wiki/spawners",
+      "notes": "Enter measured output for your current farm setup."
+    },
+    {
+      "id": "cow",
+      "name": "Cow",
+      "icon": "cow_spawn_egg",
+      "drops": [
+        "beef"
+      ],
+      "source": "https://donut.today/wiki/spawners",
+      "notes": "Use raw beef output. Leather is not included in Donut SMP cow spawner drops."
+    },
+    {
+      "id": "blaze",
+      "name": "Blaze",
+      "icon": "blaze_spawn_egg",
+      "drops": [
+        "blaze_powder"
+      ],
+      "source": "https://donut.today/wiki/spawners",
+      "notes": "Blaze spawners produce blaze powder; use powder output here, not blaze rods."
+    },
+    {
+      "id": "zombified_piglin",
+      "name": "Zombified Piglin",
+      "icon": "zombified_piglin_spawn_egg",
+      "drops": [
+        "gold_nugget"
+      ],
+      "source": "https://donut.today/wiki/spawners",
+      "notes": "Also called Zombie Piglin or Pigman. Output is gold nuggets, not gold ingots."
+    },
+    {
+      "id": "iron_golem",
+      "name": "Iron Golem",
+      "icon": "iron_golem_spawn_egg",
+      "drops": [
+        "iron_ingot"
+      ],
+      "source": "https://donut.today/wiki/spawners",
+      "notes": "Enter measured output for your current farm setup."
+    }
+  ]
+}
