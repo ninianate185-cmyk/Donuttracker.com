@@ -38,6 +38,10 @@ All 1,506 vanilla catalog items use locally hosted, native Minecraft inventory r
 
 Investment cards respond to pointer position and include an item viewer with drag/arrow-key tilt, zoom, and reset controls. The skeleton spawner supports drag/arrow-key tilt, click/Enter ember bursts, ambient embers, pause/resume, and reset. Navigation, watchlist stars, buttons, and page changes include restrained motion. Reduced-motion preferences disable ambient motion and effects; deliberate viewer controls remain available. Visual motion never changes the market data.
 
+The Investments page now choreographs Elytra, Dragon Head, and Piglin Head into their cards on entry, with a replay control. This sequence never runs in the overview. Comparison mode accepts 2–3 items, shows a removable selection dock, and opens a side-by-side table of sourced quotes, seven-day changes, monthly coverage, and stack sizes.
+
+The interface includes more than two dozen interactions and motion details: investment arrivals and landing rings; replay feedback; pointer card tilt and lighting; floating item art and shadows; comparison selection and removal; an animated comparison dock; comparison artwork inspection; arrow-key card navigation; watchlist save flights and star bursts; item-to-drawer transitions; drag and arrow-key item tilt; slider and scroll zoom; viewer rotation and double-click reset; sliding navigation and category indicators; page transitions; filtered-row entrances and sorting movement; search focus feedback, staggered suggestions, keyboard suggestion navigation, and clear/Escape shortcuts; recipe ingredient drill-down; slider fills and thumb feedback; calculator output feedback; expanding assumptions; pagination feedback; button magnetism and ripples; toast timers; and the spawner controls described above. Press C on Investments to toggle comparison, or / to focus search.
+
 ## Hosting
 
 `.openai/hosting.json` identifies the private Sites deployment. The static entry is `dist/index.html`; hash routes work on ordinary static hosting. GitHub repository: https://github.com/ninianate185-cmyk/Donuttracker.com.
