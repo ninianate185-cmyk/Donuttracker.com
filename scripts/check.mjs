@@ -18,6 +18,18 @@ assert(data.items.every(d=>d.monthlyAverage===null),'No monthly average can be i
 for(const d of data.items)if(d.icon)assert(fs.existsSync('dist/assets/'+d.icon),`Missing icon: ${d.icon}`);
 assert.equal(data.items.filter(d=>d.rendered).length,1506,'Every vanilla registry entry must have its native inventory render');
 assert.equal(data.items.find(d=>d.id==='netherite_ingot').icon,'renders/netherite_ingot.png');
+for(const id of ['dragon_head','piglin_head','player_head','zombie_head','creeper_head','skeleton_skull','wither_skeleton_skull','bone_block']){
+ const d=data.items.find(d=>d.id===id);
+ assert.equal(d.icon,`renders/${id}.png`,'Heads and Bone Block must use native inventory models, never drawn stand-ins or flat textures');
+ assert.equal(d.cube,false,'Native model renders must not receive the legacy flat-texture skew');
+}
+const html=fs.readFileSync('dist/index.html','utf8');
+for(const name of ['styles','catalog','motion','app']){
+ const path=html.match(new RegExp(`assets/build/${name}-[a-f0-9]{16}\\.(?:js|css)`))?.[0];
+ assert(path&&fs.existsSync('dist/'+path),`Missing versioned ${name} entry`);
+ const source=`dist/${name}.${name==='styles'?'css':'js'}`;
+ assert(fs.readFileSync('dist/'+path).equals(fs.readFileSync(source)),`Stale release copy: ${name}`);
+}
 const parsed=vm.runInContext(`parseCSV('item,unitPrice,quantity,timestamp\\n"diamond",100,2,2026-10-10T12:00:00Z\\n"stone",50,4,2026-10-11T12:00:00Z')`,scope);
 assert.equal(parsed.length,2);assert.equal(parsed[0].item,'diamond');assert.equal(parsed[1].quantity,'4');
 const rocket=vm.runInContext(`craft(byId.get('firework_rocket'))`,scope);

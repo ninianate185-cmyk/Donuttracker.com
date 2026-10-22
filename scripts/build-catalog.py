@@ -8,7 +8,10 @@ quotes=json.loads((research/'quotes-2026-10-21.json').read_text())
 norm=lambda s:re.sub(r'[^a-z0-9]','',s.lower())
 byname=collections.defaultdict(list)
 for q in quotes:byname[norm(q['name'])].append(q)
-icons={'observer':('observer.png',True),'hopper':('hopper.png',False),'bone_block':('bone.png',True),'firework_rocket':('rocket.png',False),'netherite_ingot':('netherite.png',False),'elytra':('elytra.png',False),'dragon_head':('dragon.svg',False),'piglin_head':('piglin.svg',False),'enchanted_golden_apple':('apple.png',False),'diamond':('diamond.png',False),'gold_ingot':('gold.png',False),'crafting_table':('crafting.png',True)}
+icons={'observer':('observer.png',True),'hopper':('hopper.png',False),'firework_rocket':('rocket.png',False),'netherite_ingot':('netherite.png',False),'elytra':('elytra.png',False),'enchanted_golden_apple':('apple.png',False),'diamond':('diamond.png',False),'gold_ingot':('gold.png',False),'crafting_table':('crafting.png',True)}
+native_required={'dragon_head','piglin_head','player_head','zombie_head','creeper_head','skeleton_skull','wither_skeleton_skull','bone_block'}
+for name in native_required:
+ if not (dest/'assets/renders'/(name+'.png')).exists():raise RuntimeError('Missing authentic Minecraft render: '+name)
 def category(n):
  if n in {'dragon_head','piglin_head','dragon_egg'} or 'pottery_sherd' in n or 'smithing_template' in n:return 'Collectibles'
  if any(x in n for x in ['redstone','hopper','observer','piston','repeater','comparator','daylight_detector','target','tripwire']):return 'Redstone'

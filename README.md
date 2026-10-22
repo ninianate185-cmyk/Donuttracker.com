@@ -12,6 +12,8 @@ Serve `dist/` with `python3 -m http.server 4173 --directory dist`, then open htt
 
 Run `node scripts/check.mjs` to verify catalog integrity, source coverage, price handling, recipe output quantities, CSV parsing, and required assets.
 
+After changing catalog or UI sources, run `python3 scripts/version-assets.py` before checks and deployment. It gives each release's JavaScript and CSS content-addressed filenames, preventing cached pages from mixing older stand-in artwork with a newer UI.
+
 ## Data
 
 - All 1,506 Minecraft Java 26.1 registry entries, plus identified server items and source variants: 1,588 searchable entries total.
