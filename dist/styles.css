@@ -81,3 +81,34 @@ input[type=range]{appearance:none;-webkit-appearance:none;height:4px;border-radi
 .native-spawner-stage .native-spawner-cage .spawner-interior>.spawner-mob{position:absolute;inset:28% auto auto 28%;width:44%;height:44%;max-width:none;max-height:none;object-fit:contain;transform-origin:center}
 .native-spawner-cage>.spawner-art{z-index:1}
 .motion-paused .spawner-mob,.motion-paused .spawner-glow{animation-play-state:paused}
+
+/* A quiet support entry beneath Profile; payments are intentionally unconnected. */
+.profile-actions{position:relative;display:flex;align-items:center}
+.tip-jar-trigger{position:absolute;right:0;top:calc(100% + 22px);display:flex;align-items:center;gap:8px;white-space:nowrap;min-height:35px;padding:7px 11px;color:var(--orange);background:#1f231def;border:1px solid #564633;border-radius:7px;box-shadow:0 6px 18px #0002;font-size:11px;font-weight:550;backdrop-filter:blur(12px);transition:background .2s,border-color .2s,transform .2s}
+.tip-jar-trigger svg{width:19px;height:19px;flex-shrink:0;transition:transform .25s}
+.tip-jar-trigger small{font-size:8px;font-weight:500;line-height:1.6;color:#d4b99f;border-left:1px solid #5b4935;padding-left:8px}
+.tip-jar-trigger:hover{background:#30291f;border-color:#ba8052;transform:translateY(-2px)}
+.tip-jar-trigger:hover svg{transform:rotate(-8deg)}
+.tip-jar-trigger:active{transform:translateY(0)}
+.tip-jar-modal{width:min(440px,calc(100% - 32px));padding:28px 32px;text-align:center;box-shadow:0 30px 100px #0007;background:radial-gradient(ellipse at 50% 20%,#38302555,transparent 55%),#1b2118}
+.tip-jar-modal .drawer-top{margin-bottom:0;text-align:left;gap:15px}
+.tip-jar-modal .drawer-top small{font-size:8px;letter-spacing:.1em}
+.tip-jar-modal .drawer-close{flex-shrink:0}
+.tip-jar-art{width:156px;height:156px;margin:7px auto 10px;color:var(--orange)}
+.tip-jar-art svg{width:100%;height:100%;overflow:visible}
+.tip-jar-coin{animation:tip-coin-in .7s cubic-bezier(.2,.7,.25,1) both}
+.tip-jar-status{display:inline-flex;align-items:center;gap:7px;font-size:8px;letter-spacing:.16em;color:var(--orange)}
+.tip-jar-status i{width:5px;height:5px;border-radius:50%;background:currentColor}
+.tip-jar-modal h2{font-size:31px;margin:13px 0 15px;letter-spacing:-.045em}
+.tip-jar-modal>p{max-width:325px;margin:auto;font-size:12px;line-height:1.8}
+.tip-jar-availability{display:flex;justify-content:center;align-items:center;gap:7px;font-size:10px;color:var(--muted);padding:20px 0;margin-top:9px}
+.tip-jar-availability svg{width:16px;height:16px}
+.tip-jar-payment:disabled{opacity:1;color:#c5ad93;background:#302b22;border-color:#524634;cursor:default;font-size:12px;padding:13px 17px;min-height:46px}
+.tip-jar-payment:disabled:hover{transform:none;background:#302b22;border-color:#524634}
+.tip-jar-payment>span{font-size:21px;line-height:1;color:var(--orange)}
+.tip-jar-back{display:inline-flex;align-items:center;gap:16px;margin-top:20px;padding:5px;font-size:11px;color:#b9c0b2}
+.tip-jar-back:hover{color:var(--orange)}
+@keyframes tip-coin-in{from{opacity:0;transform:translateY(-15px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:900px){.profile-actions{position:static}.tip-jar-trigger{top:calc(100% + 8px);right:20px}}
+@media(max-width:640px){.tip-jar-trigger{right:14px;min-height:32px;padding:5px 9px;gap:6px;font-size:10px}.tip-jar-trigger svg{width:17px;height:17px}.tip-jar-trigger small{font-size:7px;padding-left:6px}.tip-jar-modal{padding:23px}.tip-jar-modal h2{font-size:28px}.tip-jar-art{width:130px;height:130px;margin-top:5px}}
+@media(prefers-reduced-motion:reduce){.tip-jar-trigger,.tip-jar-trigger svg{transition:none}.tip-jar-trigger:hover,.tip-jar-trigger:hover svg{transform:none}.tip-jar-coin{animation:none}}
