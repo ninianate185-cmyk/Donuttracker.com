@@ -18,7 +18,8 @@ for name in ['styles.css', 'catalog.js', 'motion.js', 'app.js']:
     html, count = re.subn(pattern, f'"assets/build/{versioned}"', html)
     if count != 1:
         raise RuntimeError(f'Expected one entry reference for {name}; found {count}')
-(dist / 'index.html').write_text(html, encoding='utf-8', newline='\n')
+with (dist / 'index.html').open('w', encoding='utf-8', newline='\n') as output:
+    output.write(html)
 # Drop superseded release copies so the deployment only ships what index.html loads.
 for old in target.iterdir():
     if old.name not in current and re.fullmatch(r'(styles|catalog|motion|app)-[a-f0-9]{16}\.(css|js)', old.name):
