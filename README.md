@@ -77,3 +77,8 @@ The proxy calls the documented official `GET /v1/stats/{user}` endpoint, returns
 ## Typography
 
 IBM Plex Sans is self-hosted for headings and interface text, with medium/semibold hierarchy and restrained spacing. IBM Plex Mono provides tabular prices and statistics. Only the used Latin weights are bundled; no external font service is required.
+
+
+## Investment arrivals
+
+The four featured investment artworks fly into their slots on entry to Investments, with separate paths, staggered landings, and a replay button. The sequence also runs when Investments is selected again. It is scoped to that page; overview items remain static. Offscreen cards wait until visible, images preload before flight, and scrolling, resizing, or leaving the page removes in-flight artwork. Reduced-motion preferences show the items immediately.
