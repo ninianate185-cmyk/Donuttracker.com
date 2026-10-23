@@ -9,3 +9,4 @@
 *.ts text eol=lf
 *.tsx text eol=lf
 .gitignore text eol=lf
+*.yml text eol=lf
