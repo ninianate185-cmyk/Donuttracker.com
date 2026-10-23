@@ -72,3 +72,8 @@ To enable live stats later:
 4. Set the frontend build variable `VITE_PLAYER_API_URL` to that Worker URL and rebuild. GitHub Pages remains a static deployment; it cannot hold the private API key.
 
 The proxy calls the documented official `GET /v1/stats/{user}` endpoint, returns only permitted stat fields with `fetchedAt`, and does not expose upstream credentials or errors. The playtime formatter treats the API value as milliseconds. No example player balances are bundled.
+
+
+## Typography
+
+IBM Plex Sans is self-hosted for headings and interface text, with medium/semibold hierarchy and restrained spacing. IBM Plex Mono provides tabular prices and statistics. Only the used Latin weights are bundled; no external font service is required.

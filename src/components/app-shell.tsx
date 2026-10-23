@@ -109,7 +109,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <motion.span whileHover={{ rotate: 90 }} transition={{ type: 'spring', stiffness: 200, damping: 12 }} className="block">
               <Logo className="size-7" />
             </motion.span>
-            <span className="font-heading text-lg font-bold tracking-tight">
+            <span className="font-heading text-lg font-semibold tracking-[-0.035em]">
               donut<span className="text-primary">tracker</span>
             </span>
           </NavLink>

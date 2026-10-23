@@ -66,7 +66,7 @@ export default function Spawners() {
               <SpawnerStage key={type.id} type={type} />
             </div>
             <div className="flex flex-col gap-5">
-              <h2 className="font-heading text-3xl font-bold">{type.name}</h2>
+              <h2 className="font-heading text-3xl font-semibold">{type.name}</h2>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="sp-count" className="text-xs text-muted-foreground">
                   Spawner count

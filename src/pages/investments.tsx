@@ -56,7 +56,7 @@ export default function Investments() {
             <ItemIcon item={d} size={big ? 96 : 64} className="drop-shadow-[0_10px_10px_#0006]" />
           </motion.span>
         </span>
-        <span className="font-heading text-lg font-bold">{d.name}</span>
+        <span className="font-heading text-[17px] font-semibold leading-snug tracking-[-0.015em]">{d.name}</span>
         <span className="flex items-baseline gap-2">
           <Price item={d} className="text-xl font-medium" />
           <Change value={d.change} className="text-sm" />
