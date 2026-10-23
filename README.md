@@ -56,3 +56,19 @@ Motion is purposeful: sliding nav and tab pills, rolling page numbers, counting 
 ## Hosting
 
 `.openai/hosting.json` points the Sites deployment at `dist/`. The build uses relative URLs and hash routes, so `dist/` works on any static host. Commit `dist/` after `npm run build` if the host deploys straight from the repository. GitHub repository: https://github.com/ninianate185-cmyk/Donuttracker.com.
+
+
+## Update times and player search
+
+The freshness bar on every page uses the original market source timestamp (including year and Pacific timezone) and its age. Opening the site does not refresh the quoted prices. Item details retain their own quote timestamp. Player data has a separate retrieval timestamp.
+
+Player search is after Investments in the desktop navigation, and is also in the mobile navigation and command menu. Username validation, shareable `#/players?name=Username` links, request cancellation, error states, and ten official stats plus K/D are implemented. Missing stats stay unavailable. No API key is currently configured, so the released page explicitly shows that live stats are not connected.
+
+To enable live stats later:
+
+1. Deploy `server/player-api.mjs` as a Cloudflare Worker (or adapt it to your backend).
+2. Save your own authorized key as the **server secret** `DONUTSMP_API_KEY`. Never put it into a `VITE_` variable or the repository.
+3. Set `ALLOWED_ORIGINS` on that backend to the exact frontend origins, comma-separated. Defaults cover the existing Sites domain and GitHub Pages origin.
+4. Set the frontend build variable `VITE_PLAYER_API_URL` to that Worker URL and rebuild. GitHub Pages remains a static deployment; it cannot hold the private API key.
+
+The proxy calls the documented official `GET /v1/stats/{user}` endpoint, returns only permitted stat fields with `fetchedAt`, and does not expose upstream credentials or errors. The playtime formatter treats the API value as milliseconds. No example player balances are bundled.

@@ -1,15 +1,16 @@
 import { useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router'
 import { motion, AnimatePresence } from 'motion/react'
-import { Calculator, Hammer, LayoutGrid, Search, Star, TrendingUp } from 'lucide-react'
+import { Calculator, Hammer, LayoutGrid, Search, Star, TrendingUp, Gem, Users } from 'lucide-react'
 import { Kbd } from '@/components/ui/kbd'
-import { ITEMS, snapshotTime } from '@/data/catalog.ts'
+import { ITEMS } from '@/data/catalog.ts'
 import { useApp } from '@/app-context.tsx'
 import { passesGrade } from '@/lib/market.ts'
 import { fmt, num } from '@/lib/format.ts'
 import { cn } from '@/lib/utils'
 import { Change, ItemIcon, useWatch } from './bits'
 import { TipJarButton } from './tip-jar'
+import { MarketUpdate } from './update-time'
 
 const NAV = [
   { to: '/', label: 'Overview' },
@@ -17,6 +18,7 @@ const NAV = [
   { to: '/flips', label: 'Flips' },
   { to: '/spawners', label: 'Spawners' },
   { to: '/investments', label: 'Investments' },
+  { to: '/players', label: 'Player search' },
 ]
 
 const TABS = [
@@ -24,7 +26,8 @@ const TABS = [
   { to: '/market', label: 'Market', icon: TrendingUp },
   { to: '/flips', label: 'Flips', icon: Hammer },
   { to: '/spawners', label: 'Spawners', icon: Calculator },
-  { to: '/watchlist', label: 'Saved', icon: Star },
+  { to: '/investments', label: 'Investments', icon: Gem },
+  { to: '/players', label: 'Players', icon: Users },
 ]
 
 export function Logo({ className }: { className?: string }) {
@@ -60,7 +63,7 @@ function Ticker() {
     <div className="border-b border-border bg-surface/80">
       <div className="mx-auto flex h-9 max-w-7xl items-center gap-4 px-4 sm:px-8">
         <span className="hidden shrink-0 items-center gap-1.5 text-[11px] font-medium text-muted-foreground sm:flex">
-          <span className="size-1.5 rounded-full bg-ember" /> Snapshot · {snapshotTime}
+          <span className="size-1.5 rounded-full bg-ember" /> 7-day moves · snapshot
         </span>
         <div className="group relative flex flex-1 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]" aria-label="Biggest 7-day moves">
           <div className="motion-safe-only flex w-max animate-[marquee_60s_linear_infinite] group-hover:[animation-play-state:paused]">
@@ -110,9 +113,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               donut<span className="text-primary">tracker</span>
             </span>
           </NavLink>
-          <nav aria-label="Main" className="ml-4 hidden items-center gap-1 lg:flex">
+          <nav aria-label="Main" className="ml-2 hidden items-center gap-0 xl:flex">
             {NAV.map((n) => (
-              <NavLink key={n.to} to={n.to} end={n.to === '/'} className="relative rounded-md px-3 py-1.5 text-sm">
+              <NavLink key={n.to} to={n.to} end={n.to === '/'} className="relative rounded-md px-2.5 py-1.5 text-[13px] whitespace-nowrap">
                 {({ isActive }) => (
                   <>
                     {isActive && <motion.span layoutId="nav-pill" className="absolute inset-0 rounded-md bg-secondary ring-1 ring-border" transition={{ type: 'spring', stiffness: 380, damping: 32 }} />}
@@ -126,9 +129,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={openSearch}
-            className="hidden h-9 min-w-40 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm whitespace-nowrap text-muted-foreground transition hover:border-input hover:text-foreground sm:flex xl:min-w-60"
+            className="hidden h-9 min-w-40 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm whitespace-nowrap text-muted-foreground transition hover:border-input hover:text-foreground sm:flex xl:min-w-36 2xl:min-w-52"
           >
-            <Search className="size-4" /> Search<span className="max-xl:hidden"> {num(ITEMS.length)} items</span>
+            <Search className="size-4" /> Search<span className="max-2xl:hidden"> {num(ITEMS.length)} items</span>
             <Kbd className="ml-auto">⌘K</Kbd>
           </button>
           <button type="button" onClick={openSearch} aria-label="Search items" className="grid size-10 place-items-center rounded-lg border border-border sm:hidden">
@@ -158,7 +161,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
       <Ticker />
 
-      <main id="content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 pt-8 pb-28 outline-none sm:px-8 sm:pt-10 lg:pb-16">
+      <main id="content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 pt-8 pb-28 outline-none sm:px-8 sm:pt-10 xl:pb-16">
+        <MarketUpdate />
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={location.pathname} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}>
             {children}
@@ -166,7 +170,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </AnimatePresence>
       </main>
 
-      <footer className="border-t border-border pb-24 lg:pb-0">
+      <footer className="border-t border-border pb-24 xl:pb-0">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-6 text-xs text-muted-foreground sm:px-8">
           <span>Independent community project. Not affiliated with Donut SMP.</span>
           <span className="flex-1" />
@@ -182,7 +186,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </footer>
 
-      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-background/95 px-2 pt-1 pb-[max(env(safe-area-inset-bottom),10px)] backdrop-blur-md lg:hidden">
+      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-background/95 px-2 pt-1 pb-[max(env(safe-area-inset-bottom),10px)] backdrop-blur-md xl:hidden">
         {TABS.map((t) => (
           <NavLink key={t.to} to={t.to} end={t.to === '/'} className="relative flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 text-[11px]">
             {({ isActive }) => (

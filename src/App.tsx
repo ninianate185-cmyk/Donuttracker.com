@@ -15,6 +15,7 @@ import Flips from '@/pages/flips'
 import Spawners from '@/pages/spawners'
 import Investments from '@/pages/investments'
 import Watchlist from '@/pages/watchlist'
+import Players from '@/pages/players'
 
 export default function App() {
   const [itemId, setItemId] = useState<string | null>(null)
@@ -39,6 +40,7 @@ export default function App() {
                 <Route path="/flips" element={<Flips />} />
                 <Route path="/spawners" element={<Spawners />} />
                 <Route path="/investments" element={<Investments />} />
+                <Route path="/players" element={<Players />} />
                 <Route path="/watchlist" element={<Watchlist />} />
                 <Route path="*" element={<Overview />} />
               </Routes>

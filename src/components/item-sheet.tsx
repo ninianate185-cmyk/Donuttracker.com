@@ -11,6 +11,7 @@ import { ALTERNATES, CRAFTS, byId, snapshotTime } from '@/data/catalog.ts'
 import { fmt, num } from '@/lib/format.ts'
 import { KEYS, useStored } from '@/lib/store.ts'
 import type { Item, Plan, SalesSample } from '@/lib/types.ts'
+import { UpdatedAt } from './update-time'
 import { Change, GradeBadge, ItemIcon, Price, useWatch } from './bits'
 
 export function ItemSheet({ id, onOpenChange, onItem }: { id: string | null; onOpenChange: (open: boolean) => void; onItem: (id: string) => void }) {
@@ -68,6 +69,7 @@ function Detail({ item, onItem }: { item: Item; onItem: (id: string) => void }) 
       </SheetHeader>
 
       <div className="flex flex-col gap-5 p-5">
+        {item.sourceTime && <UpdatedAt value={item.sourceTime} label="Quote updated" />}
         <div className="grid grid-cols-2 gap-2.5">
           <Stat label="October average" value={sample ? fmt(sample.average) + '*' : 'Unavailable'} hint={sample ? `${num(sample.transactions)} imported sales` : 'Import a sales CSV'} />
           <Stat label="Donut.Auction value" value={alt ? fmt(alt.price) : '—'} hint={alt ? 'Observed Oct 21; may be stale' : 'Not observed'} />

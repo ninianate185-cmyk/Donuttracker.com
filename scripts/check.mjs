@@ -1,6 +1,9 @@
 // Data + logic checks. `--dist` also checks a finished `vite build`.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import { parseStats, validUsername, playtime, killDeath } from '../src/lib/players.ts';
+import { timestamp, timeAgo } from '../src/lib/time.ts';
+import { handlePlayerRequest } from '../server/player-api.mjs';
 import { fmt, pct } from '../src/lib/format.ts';
 import { craft, craftable, passesGrade } from '../src/lib/market.ts';
 import { spawnerEstimate } from '../src/lib/spawner.ts';
@@ -80,3 +83,28 @@ if (process.argv.includes('--dist')) {
 }
 
 console.log(`PASS: catalog/provenance, formatting, recipe yield + grades, CSV import, spawner math, ${data.items.filter((d) => d.icon).length} local icons${process.argv.includes('--dist') ? ', built site' : ''}.`);
+
+// Freshness labels must follow the source timestamp, not the page load time.
+assert(timestamp('2026-10-21T17:49:00Z').includes('2026'));
+assert(timestamp('2026-10-21T17:49:00Z').includes('PDT'));
+assert.equal(timeAgo('2026-10-21T17:49:00Z', Date.parse('2026-10-23T17:49:00Z')), '2 days ago');
+assert.equal(timeAgo('invalid'), 'Time unavailable');
+// Official stats: unknown values remain missing, and zero deaths are handled explicitly.
+assert(validUsername('DrDonut') && validUsername('.Player_1'));
+assert(!validUsername('../secret') && !validUsername('a') && !validUsername('bad name'));
+const stats = parseStats({ money: '1234567', kills: '20', deaths: '0', shards: '', playtime: '90000000' });
+assert.equal(stats.money, 1234567); assert.equal(stats.shards, null); assert.equal(stats.broken_blocks, null);
+assert.equal(killDeath(stats), 'No deaths'); assert.equal(playtime(stats.playtime), '1d 1h');
+assert.throws(() => parseStats({ money: 'NaN', deaths: -1 }));
+const request = new Request('https://stats.example/?username=DrDonut', { headers: { Origin: 'https://donut-tracker-nathan.ninianate185.chatgpt.site' } });
+assert.equal((await handlePlayerRequest(request, {})).status, 503);
+const api = await handlePlayerRequest(request, { DONUTSMP_API_KEY: 'test-only' }, async (url, init) => {
+  assert.equal(url, 'https://api.donutsmp.net/v1/stats/DrDonut');
+  assert.equal(init.headers.Authorization, 'Bearer test-only');
+  return Response.json({ status: 200, result: { money: '5', kills: '0' } });
+});
+const payload = await api.json();
+assert.equal(api.status, 200); assert.equal(payload.stats.money, '5'); assert.equal(payload.stats.shards, null);
+assert(!JSON.stringify(payload).includes('test-only'));
+assert.equal((await handlePlayerRequest(request, { DONUTSMP_API_KEY: 'test-only' }, async () => new Response('', { status: 429 }))).status, 429);
+console.log('PASS: source update timestamps, player input + missing stats, private-key proxy and API errors.');
