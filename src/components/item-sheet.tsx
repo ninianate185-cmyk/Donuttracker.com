@@ -72,7 +72,7 @@ function Detail({ item, onItem }: { item: Item; onItem: (id: string) => void }) 
         {item.sourceTime && <UpdatedAt value={item.sourceTime} label="Quote updated" />}
         <div className="grid grid-cols-2 gap-2.5">
           <Stat label="October average" value={sample ? fmt(sample.average) + '*' : 'Unavailable'} hint={sample ? `${num(sample.transactions)} imported sales` : 'Import a sales CSV'} />
-          <Stat label="Donut.Auction value" value={alt ? fmt(alt.price) : '—'} hint={alt ? 'Observed Oct 21; may be stale' : 'Not observed'} />
+          <Stat label="Donut.Auction value" value={alt ? fmt(alt.price) : '—'} hint={alt ? `Checked ${alt.observedOn}; source age unknown` : 'Not observed'} />
         </div>
 
         {recipe && (
@@ -136,7 +136,7 @@ function Detail({ item, onItem }: { item: Item; onItem: (id: string) => void }) 
               <a className="underline underline-offset-2 hover:text-foreground" href={item.source} target="_blank" rel="noopener noreferrer">
                 DonutSMP Terminal
               </a>{' '}
-              · snapshot {snapshotTime} · rounded public label.
+              · snapshot {snapshotTime} · rounded public label{item.priceType ? ` · ${item.priceType.toLowerCase()} quote` : ''}.
             </>
           ) : (
             'No verified quote is available for this catalog entry.'

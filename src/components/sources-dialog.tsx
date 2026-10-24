@@ -3,7 +3,7 @@ import { Upload } from 'lucide-react'
 import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { ITEMS, META, byId, snapshotTime } from '@/data/catalog.ts'
+import { ALTERNATES, ITEMS, META, byId, snapshotTime } from '@/data/catalog.ts'
 import { aggregateSales, parseCSV } from '@/lib/csv.ts'
 import { num } from '@/lib/format.ts'
 import { KEYS, useStored } from '@/lib/store.ts'
@@ -12,7 +12,7 @@ import type { SalesSample } from '@/lib/types.ts'
 const SOURCES = [
   { href: 'https://github.com/PrismarineJS/minecraft-data', name: 'Minecraft catalog & recipes', note: 'PrismarineJS minecraft-data · Java 26.1 registry · MIT license' },
   { href: 'https://donutsmpterminal.com/all_items', name: 'DonutSMP Terminal market quotes', note: `${num(META.priceCount)} rounded public quotes. Snapshot ${snapshotTime}. Seven-day change reported by the source.` },
-  { href: 'https://donut.auction', name: 'Donut.Auction alternate values', note: '25 separately attributed observations. Transaction history may be incomplete; not October averages.' },
+  { href: 'https://donut.auction', name: 'Donut.Auction alternate values', note: `${num(Object.keys(ALTERNATES).length)} separately attributed observations, checked ${META.retrievedOn}. Source update time is unknown; these are not October averages.` },
   { href: 'https://api.donutsmp.net', name: 'Official Donut SMP API', note: 'Requires an authorized key. None is included in this site.' },
 ]
 

@@ -1,0 +1,23 @@
+{
+  "quotesFile": "quotes-2026-10-24.json",
+  "alternatesFile": "auction-observations-2026-10-24.json",
+  "source": "https://donutsmpterminal.com/all_items",
+  "sourceTime": "2026-10-24T13:59:00Z",
+  "retrievedOn": "2026-10-24",
+  "retrievedAt": "2026-10-24T17:41:25Z",
+  "quoteRows": 1424,
+  "priceCount": 1409,
+  "alternateCount": 25,
+  "sources": [
+    {
+      "url": "https://donutsmpterminal.com/all_items",
+      "retrievedAt": "2026-10-24T17:41:25Z",
+      "sha256": "66b737c6b24a5be2a050291430cf7b28d1b4493cb18cc5bc57a94dca32074578"
+    },
+    {
+      "url": "https://donut.auction",
+      "retrievedAt": "2026-10-24T17:41:26Z",
+      "sha256": "09f681e3ab938bbb52965cceb8b2bd222e0e16f0e1c44b44e6516d5db6cf1c56"
+    }
+  ]
+}

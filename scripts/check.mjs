@@ -10,13 +10,33 @@ import { spawnerEstimate } from '../src/lib/spawner.ts';
 import { parseCSV, aggregateSales } from '../src/lib/csv.ts';
 
 const data = JSON.parse(fs.readFileSync('src/data/catalog.json', 'utf8'));
+const snapshot = JSON.parse(fs.readFileSync('data/market-snapshot.json', 'utf8'));
+const quotes = JSON.parse(fs.readFileSync('data/' + snapshot.quotesFile, 'utf8'));
 const byId = new Map(data.items.map((d) => [d.id, d]));
 
 // Catalog integrity and provenance
 assert.equal(data.meta.catalogCount, 1505, 'Java 26.1 registry minus Air');
 assert(!byId.has('air'), 'Air is not a tradeable item');
 assert.equal(data.items.length, byId.size, 'IDs must be unique');
-assert.equal(data.items.filter((d) => Number.isFinite(d.price)).length, 1404);
+assert.equal(quotes.length, snapshot.quoteRows, 'Complete source row coverage');
+assert.equal(new Set(quotes.map((q) => q.ref)).size, quotes.length, 'Unique source variant references');
+assert.equal(data.items.filter((d) => Number.isFinite(d.price)).length, snapshot.priceCount);
+assert.equal(snapshot.priceCount, quotes.filter((q) => Number.isFinite(q.price)).length);
+assert.equal(data.meta.priceCount, snapshot.priceCount);
+assert.equal(data.meta.sourceTime, snapshot.sourceTime);
+assert.equal(data.meta.retrievedAt, snapshot.retrievedAt);
+assert(Date.parse(snapshot.sourceTime) <= Date.parse(snapshot.retrievedAt), 'Retrieval is not the source update time');
+assert(data.items.filter((d) => d.price !== null).every((d) => d.sourceTime === snapshot.sourceTime), 'All quotes use the current snapshot');
+for (const q of quotes) {
+  const match = data.items.find((d) => d.id === `tracked_${q.name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')}_${q.ref}`)
+    ?? data.items.find((d) => d.name === q.name && d.category !== 'Server variants');
+  assert(match, `Missing source row: ${q.name}`);
+  assert.equal(match.price, q.price, `Quote mismatch: ${q.name}`);
+  assert.equal(match.change, q.change, `Change mismatch: ${q.name}`);
+  assert.equal(match.priceType, q.priceType, `Quote type mismatch: ${q.name}`);
+}
+assert.equal(Object.keys(data.alternates).length, snapshot.alternateCount);
+assert(Object.values(data.alternates).every((q) => q.observedOn === snapshot.retrievedOn));
 assert(data.items.every((d) => d.price === null || d.price > 0));
 assert(data.items.filter((d) => d.price !== null).every((d) => d.source && d.sourceTime), 'Every quote must retain provenance');
 assert(data.items.every((d) => d.monthlyAverage === null), 'No monthly average can be invented from a current quote');
@@ -43,7 +63,7 @@ assert.equal(craft(byId.get('donut_skeleton_spawner'), data.recipes, byId), null
 const flips = craftable(data.items, data.recipes, byId);
 const reliable = flips.filter((d) => passesGrade(d.recipe.grade, 'B'));
 assert(reliable.length > 0 && reliable.every((d) => ['S', 'A', 'B'].includes(d.recipe.grade)), 'Default flips exclude C/D-grade quotes');
-assert(!reliable.some((d) => d.id === 'waxed_exposed_copper_chest'));
+assert(flips.filter((d) => !passesGrade(d.recipe.grade, 'B')).every((d) => !reliable.includes(d)));
 assert(flips.length > reliable.length);
 
 // CSV import

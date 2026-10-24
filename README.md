@@ -23,9 +23,9 @@ npm run preview    # serve the built dist/
 
 ## Data
 
-- All 1,505 Minecraft Java 26.1 registry items (the registry's `air` entry is excluded), plus identified server items and source variants: 1,595 searchable entries total.
-- 1,404 rounded public market quotes from https://donutsmpterminal.com/all_items, published October 21, 2026 at 17:49 UTC. This is a snapshot, not a live feed.
-- 25 alternate displayed values from https://donut.auction retained separately with source links. Its transaction history may be stale or incomplete.
+- All 1,505 Minecraft Java 26.1 registry items (the registry's `air` entry is excluded), plus identified server items and source variants: 1,596 searchable entries total.
+- 1,409 rounded public market quotes from https://donutsmpterminal.com/all_items, published October 24, 2026 at 13:59 UTC (6:59 AM PDT). All 1,424 source rows are retained, including 15 without a price. This is a snapshot, not a live feed. Auction-house and fallback buy-order quotes retain their type.
+- 25 alternate displayed values from https://donut.auction, checked October 24, retained separately with source links. Its source update time is unknown; checking the page does not establish fresh sales or a monthly average.
 - Catalog and recipes: https://github.com/PrismarineJS/minecraft-data.
 - No verified October transaction dataset is included. Missing monthly averages and missing prices remain unavailable; no fake history is generated.
 - Import a CSV through Sources & coverage to calculate October volume-weighted sample means. Required columns: item,unitPrice,quantity,timestamp. Use timezone-qualified ISO dates. The imported sample does not establish complete server-wide coverage.
@@ -33,7 +33,9 @@ npm run preview    # serve the built dist/
 
 ## Update the snapshot
 
-Edit the attributed files in `data/`, then run `npm run catalog` (`python scripts/build-catalog.py`). It regenerates `src/data/catalog.json`. Item images live in `public/assets/`; refresh them with `python scripts/download-renders.py` (native renders) or `python scripts/download-icons.py` (fallback textures), then rebuild. Never fill missing observations with zero or generated estimates.
+Run `npm run prices:refresh` to fetch both public pages, validate their complete displayed rows, save dated observations and the provenance manifest `data/market-snapshot.json`, and regenerate `src/data/catalog.json`. The manifest keeps the source publication timestamp separate from retrieval times and records source hashes. Missing prices and missing seven-day changes remain null. Existing source variant references are retained; duplicate labels remain unmerged. The script stops before replacing the snapshot if parsing or coverage validation fails.
+
+Run `npm run catalog` (`python3 scripts/build-catalog.py`) to rebuild from the saved manifest without another fetch, then `npm run build`. Item images live in `public/assets/`; refresh them with `python3 scripts/download-renders.py` (native renders) or `python3 scripts/download-icons.py` (fallback textures). Never fill missing observations with zero or generated estimates.
 
 ## Persistence and calculations
 
@@ -48,6 +50,8 @@ Crafting flips hide recipes whose output or any ingredient quote is graded C or 
 Skeleton, Zombie, Spider, Creeper, Pig, Cow, Blaze, Zombified Piglin, and Iron Golem spawners; types, drops and references are in `data/spawners.json`. Each type keeps its own count, hours, purchase price, drop rates and selling prices; Reset clears only the selected type.
 
 Production rates are always user measured. Every included drop needs a rate and a price; a rate of zero excludes a drop, and missing observations never become zero. Payback needs positive income and a purchase price. No spawner purchase price is fabricated.
+
+Saved user inputs are preserved across quote refreshes. Use **Use market prices** on the calculator to apply the latest drop prices while keeping measured rates and the purchase price.
 
 ## Motion and accessibility
 

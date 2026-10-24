@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import { RotateCcw } from 'lucide-react'
+import { RefreshCw, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -94,7 +94,9 @@ export default function Spawners() {
           <div className="flex flex-col px-5 pt-4 pb-2">
             <div className="flex items-baseline justify-between pb-2">
               <h3 className="text-[15px] font-semibold">Drops</h3>
-              <span className="text-xs text-muted-foreground">Rate 0 excludes a drop</span>
+              <Button variant="ghost" size="sm" title={`Use market quotes from ${snapshotTime}; keep measured rates`} onClick={() => update({ drops: Object.fromEntries(drops.map((d) => [d.id, { rate: d.rate, price: byId.get(d.id)?.price ?? '' }])) })}>
+                <RefreshCw className="size-3.5" /> Use market prices
+              </Button>
             </div>
             {drops.map((d) => {
               const item = byId.get(d.id)!

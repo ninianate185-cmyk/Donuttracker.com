@@ -15,6 +15,7 @@ export interface Item {
   monthlyAverage: null
   source: string | null
   sourceTime: string | null
+  priceType?: 'Auction house' | 'Buy order'
   sourceGrade?: Grade | null
   rounded?: boolean
   variantNote: string | null
@@ -36,6 +37,7 @@ export interface SpawnerType {
 export interface Alternate {
   price: number
   source: string
+  observedOn: string
 }
 
 export interface Catalog {
@@ -45,6 +47,7 @@ export interface Catalog {
     source: string
     sourceTime: string
     retrievedOn: string
+    retrievedAt: string
     priceCount: number
     monthlyCoverage: number
     notes: string

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "catalog": "python scripts/build-catalog.py",
+    "catalog": "python3 scripts/build-catalog.py",
+    "prices:refresh": "python3 scripts/refresh-prices.py && python3 scripts/build-catalog.py",
     "typecheck": "tsc -b",
     "check": "node scripts/check.mjs",
     "build": "tsc -b && vite build && node scripts/check.mjs --dist",
