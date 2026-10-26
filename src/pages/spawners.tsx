@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react'
 import { motion } from 'motion/react'
 import { RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -6,12 +7,14 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { AnimatedNumber, ItemIcon, PageHead } from '@/components/bits'
-import { SpawnerStage } from '@/components/spawner-stage'
 import { SPAWNERS, byId, snapshotTime } from '@/data/catalog.ts'
 import { fmt } from '@/lib/format.ts'
 import { spawnerEstimate } from '@/lib/spawner.ts'
 import { KEYS, useStored } from '@/lib/store.ts'
 import { cn } from '@/lib/utils'
+
+// three.js is heavy; only the Spawners page needs it.
+const SpawnerStage = lazy(() => import('@/components/spawner-stage').then((m) => ({ default: m.SpawnerStage })))
 
 interface Saved {
   count?: string | number
@@ -63,7 +66,9 @@ export default function Spawners() {
         <Card className="min-w-0 flex-1 gap-0 p-0">
           <div className="grid gap-6 border-b border-border p-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <div className="h-72 overflow-hidden rounded-xl bg-surface md:h-auto md:min-h-72">
-              <SpawnerStage key={type.id} type={type} />
+              <Suspense>
+                <SpawnerStage key={type.id} type={type} />
+              </Suspense>
             </div>
             <div className="flex flex-col gap-5">
               <h2 className="font-heading text-3xl font-bold">{type.name}</h2>

@@ -61,7 +61,7 @@ export function SourcesDialog({ open, onOpenChange }: { open: boolean; onOpenCha
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Item art: native inventory renders by Owen1212055/mc-assets. The skeleton spawner illustration is AI-generated.
+          Item art: native inventory renders by Owen1212055/mc-assets. Spawners are real-time 3D renders of the vanilla spawner block and entity models, using unmodified Minecraft 1.21.4 textures.
         </p>
       </DialogContent>
     </Dialog>
