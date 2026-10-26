@@ -16,6 +16,7 @@ export const item = (id: string) => byId.get(id)
 
 export const snapshotTime = new Intl.DateTimeFormat('en-US', {
   timeZone: 'America/Los_Angeles',
+  year: 'numeric',
   month: 'short',
   day: 'numeric',
   hour: 'numeric',

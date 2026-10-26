@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
-import { AnimatePresence, motion } from 'motion/react'
-import { Check, Columns2, Plus, X } from 'lucide-react'
+import { Link, useLocation } from 'react-router'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { Check, Columns2, Plus, RotateCcw, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -12,11 +12,15 @@ import { useApp } from '@/app-context.tsx'
 import { FEATURED, MATERIALS, byId } from '@/data/catalog.ts'
 import type { Item } from '@/lib/types.ts'
 import { cn } from '@/lib/utils'
+import { InvestmentArrival } from '@/components/investment-arrival'
 
 export default function Investments() {
   const { openItem } = useApp()
   const [comparing, setComparing] = useState(false)
   const [picked, setPicked] = useState<string[]>([])
+  const [replay, setReplay] = useState(0)
+  const visit = useLocation().key
+  const reduce = useReducedMotion()
   const featured = FEATURED.map((id) => byId.get(id)!)
   const materials = MATERIALS.map((id) => byId.get(id)!)
 
@@ -51,12 +55,14 @@ export default function Investments() {
         </span>
       </div>
       <button type="button" onClick={() => (comparing ? toggle(d) : openItem(d.id))} className="flex flex-col gap-3 text-left" aria-label={comparing ? `${picked.includes(d.id) ? 'Remove' : 'Add'} ${d.name} ${picked.includes(d.id) ? 'from' : 'to'} comparison` : `View ${d.name}`}>
-        <span className={cn('grid place-items-center rounded-lg bg-surface', big ? 'h-36' : 'h-24')}>
-          <motion.span animate={{ y: [0, -5, 0] }} transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: i * 0.6 }} className="block transition-transform group-hover:scale-110 group-hover:-rotate-6">
-            <ItemIcon item={d} size={big ? 96 : 64} className="drop-shadow-[0_10px_10px_#0006]" />
-          </motion.span>
-        </span>
-        <span className="font-heading text-lg font-bold">{d.name}</span>
+        {big ? <InvestmentArrival key={`${d.id}:${visit}:${replay}`} item={d} index={i} /> : (
+          <span className="grid h-24 place-items-center rounded-lg bg-surface">
+            <motion.span animate={reduce ? { y: 0 } : { y: [0, -5, 0] }} transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: i * 0.6 }} className="block transition-transform group-hover:scale-110 group-hover:-rotate-6">
+              <ItemIcon item={d} size={64} className="drop-shadow-[0_10px_10px_#0006]" />
+            </motion.span>
+          </span>
+        )}
+        <span className="font-heading text-[17px] font-semibold leading-snug tracking-[-0.015em]">{d.name}</span>
         <span className="flex items-baseline gap-2">
           <Price item={d} className="text-xl font-medium" />
           <Change value={d.change} className="text-sm" />
@@ -78,9 +84,14 @@ export default function Investments() {
         title="Investments"
         description="High-value items people hold. Quotes and 7-day change from the source; monthly averages need imported sales."
         action={
-          <Button variant={comparing ? 'default' : 'outline'} aria-pressed={comparing} onClick={() => setComparing(!comparing)}>
-            <Columns2 className="size-4" /> Compare <Kbd className="ml-1">C</Kbd>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" disabled={!!reduce} title={reduce ? 'Reduced motion is enabled on your device' : 'Replay all four item arrivals'} onClick={() => setReplay((n) => n + 1)}>
+              <RotateCcw className="size-4" /> Replay entrance
+            </Button>
+            <Button variant={comparing ? 'default' : 'outline'} aria-pressed={comparing} onClick={() => setComparing(!comparing)}>
+              <Columns2 className="size-4" /> Compare <Kbd className="ml-1">C</Kbd>
+            </Button>
+          </div>
         }
       />
       <section className="flex flex-col gap-3">

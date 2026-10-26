@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Calculator, Hammer, LayoutGrid, Star, TrendingUp, Gem } from 'lucide-react'
+import { Calculator, Hammer, LayoutGrid, Star, TrendingUp, Gem, Users } from 'lucide-react'
 import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandShortcut } from '@/components/ui/command'
 import { ITEMS } from '@/data/catalog.ts'
 import { fmt } from '@/lib/format.ts'
@@ -13,6 +13,7 @@ const PAGES = [
   { to: '/flips', label: 'Flips', icon: Hammer },
   { to: '/spawners', label: 'Spawner calculator', icon: Calculator },
   { to: '/investments', label: 'Investments', icon: Gem },
+  { to: '/players', label: 'Player search', icon: Users },
   { to: '/watchlist', label: 'Watchlist & plans', icon: Star },
 ]
 

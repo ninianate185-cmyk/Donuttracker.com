@@ -4,7 +4,8 @@ ROOT=pathlib.Path(__file__).resolve().parent.parent
 research=ROOT/'data'; dest=ROOT/'public'; out=ROOT/'src/data/catalog.json'
 items=json.loads((research/'items-26.1.json').read_text())
 blocks={b['name'] for b in json.loads((research/'blocks-26.1.json').read_text())}
-quotes=json.loads((research/'quotes-2026-10-21.json').read_text())
+snapshot=json.loads((research/'market-snapshot.json').read_text())
+quotes=json.loads((research/snapshot['quotesFile']).read_text())
 norm=lambda s:re.sub(r'[^a-z0-9]','',s.lower())
 byname=collections.defaultdict(list)
 for q in quotes:byname[norm(q['name'])].append(q)
@@ -20,6 +21,7 @@ def category(n):
  if any(x in n for x in ['potion','apple','bread','beef','porkchop','stew','soup','carrot','potato','cookie','melon_slice','firework','chicken','mutton','rabbit','honey_bottle','chorus_fruit']):return 'Consumables'
  return 'Materials'
 spawners=json.loads((research/'spawners.json').read_text())
+server_names=[*(s['name']+' Spawner' for s in spawners['types']),'Shard Axe','Shard Pickaxe','Shard Potion of Haste','Shard Shovel']
 rows=[];matched=set();idx={i['id']:i['name'] for i in items}
 # Air is a registry entry, not an obtainable or tradeable item.
 items=[i for i in items if i['name']!='air']
@@ -39,8 +41,8 @@ for i in items:
 for q in quotes:
  if q['ref'] in matched:continue
  slug=re.sub(r'[^a-z0-9]+','_',q['name'].lower()).strip('_')
- rows.append({'id':'tracked_'+slug+'_'+q['ref'],'name':q['name'],'category':'Server variants','stack':None,'icon':None,'price':q['price'],'change':q['change'],'monthlyAverage':None,'source':q['source'],'sourceTime':q['sourceTime'],'sourceGrade':q['grade'],'rounded':True,'variantNote':'Source variant; match exact item in game'})
-for n in [*(s['name']+' Spawner' for s in spawners['types']),'Shard Axe','Shard Pickaxe','Shard Potion of Haste','Shard Shovel']:
+ rows.append({'id':'donut_'+slug if q['name'] in server_names else 'tracked_'+slug+'_'+q['ref'],'name':q['name'],'category':'DonutSMP' if q['name'] in server_names else 'Server variants','stack':None,'icon':None,'price':q['price'],'change':q['change'],'monthlyAverage':None,'source':q['source'],'sourceTime':q['sourceTime'],'sourceGrade':q['grade'],'rounded':True,'variantNote':'Source variant; match exact item in game'})
+for n in server_names:
  if any(x['name']==n for x in rows):continue
  rows.append({'id':'donut_'+re.sub('[^a-z0-9]+','_',n.lower()),'name':n,'category':'DonutSMP','stack':None,'icon':None,'price':None,'change':None,'monthlyAverage':None,'source':'https://donut.today/wiki/spawners' if n.endswith(' Spawner') else 'https://donutsmpterminal.com/all_items','sourceTime':None,'variantNote':'Price not verified'})
 recipes={}
@@ -59,8 +61,15 @@ for target,options in json.loads((research/'recipes-26.1.json').read_text()).ite
   if ingredients and not bad:valid.append({'yield':count,'ingredients':dict(collections.Counter(ingredients))})
  if valid:recipes[name]=valid
 # Public Donut.Auction displayed values are retained as separately attributed observations.
-alternates=json.loads((research/'auction-observations-2026-10-21.json').read_text())
-meta={'catalogVersion':'Minecraft Java 26.1','catalogCount':len(items),'source':'https://donutsmpterminal.com/all_items','sourceTime':'2026-10-21T17:49:00Z','retrievedOn':'2026-10-21','priceCount':sum(x['price'] is not None for x in rows),'monthlyCoverage':0,'notes':'Public rounded quoted prices. No verified month-to-date transaction history is included. Missing prices are null, never zero. Custom server items are only those identified in public source material.'}
+alternates=json.loads((research/snapshot['alternatesFile']).read_text())
+for row in rows:
+ if row['sourceTime'] is None:continue
+ candidates=byname[norm(row['name'])]
+ quote=next((q for q in candidates if row['id'].endswith('_'+q['ref'])),None) if row['category']=='Server variants' else candidates[0]
+ row['priceType']=quote['priceType']
+meta={'catalogVersion':'Minecraft Java 26.1','catalogCount':len(items),'source':snapshot['source'],'sourceTime':snapshot['sourceTime'],'retrievedOn':snapshot['retrievedOn'],'retrievedAt':snapshot['retrievedAt'],'priceCount':sum(x['price'] is not None for x in rows),'monthlyCoverage':0,'notes':'Public rounded quoted prices. No verified month-to-date transaction history is included. Missing prices are null, never zero. Custom server items are only those identified in public source material.'}
+assert meta['priceCount']==snapshot['priceCount'],'Every available source quote must appear exactly once'
 out.parent.mkdir(parents=True,exist_ok=True)
-out.write_text(json.dumps({'meta':meta,'items':rows,'recipes':recipes,'alternates':alternates,'spawners':spawners},separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
+with out.open('w',encoding='utf-8',newline='\n') as output:
+ output.write(json.dumps({'meta':meta,'items':rows,'recipes':recipes,'alternates':alternates,'spawners':spawners},separators=(',',':'))+'\n')
 print(json.dumps({'catalog':len(items),'combined':len(rows),'prices':meta['priceCount'],'recipes':len(recipes),'alternateQuotes':len(alternates),'monthlyAverages':0}))

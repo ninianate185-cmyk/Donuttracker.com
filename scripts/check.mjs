@@ -1,19 +1,42 @@
 // Data + logic checks. `--dist` also checks a finished `vite build`.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import { parseStats, validUsername, playtime, killDeath } from '../src/lib/players.ts';
+import { timestamp, timeAgo } from '../src/lib/time.ts';
+import { handlePlayerRequest } from '../server/player-api.mjs';
 import { fmt, pct } from '../src/lib/format.ts';
 import { craft, craftable, passesGrade } from '../src/lib/market.ts';
 import { spawnerEstimate } from '../src/lib/spawner.ts';
 import { parseCSV, aggregateSales } from '../src/lib/csv.ts';
 
 const data = JSON.parse(fs.readFileSync('src/data/catalog.json', 'utf8'));
+const snapshot = JSON.parse(fs.readFileSync('data/market-snapshot.json', 'utf8'));
+const quotes = JSON.parse(fs.readFileSync('data/' + snapshot.quotesFile, 'utf8'));
 const byId = new Map(data.items.map((d) => [d.id, d]));
 
 // Catalog integrity and provenance
 assert.equal(data.meta.catalogCount, 1505, 'Java 26.1 registry minus Air');
 assert(!byId.has('air'), 'Air is not a tradeable item');
 assert.equal(data.items.length, byId.size, 'IDs must be unique');
-assert.equal(data.items.filter((d) => Number.isFinite(d.price)).length, 1404);
+assert.equal(quotes.length, snapshot.quoteRows, 'Complete source row coverage');
+assert.equal(new Set(quotes.map((q) => q.ref)).size, quotes.length, 'Unique source variant references');
+assert.equal(data.items.filter((d) => Number.isFinite(d.price)).length, snapshot.priceCount);
+assert.equal(snapshot.priceCount, quotes.filter((q) => Number.isFinite(q.price)).length);
+assert.equal(data.meta.priceCount, snapshot.priceCount);
+assert.equal(data.meta.sourceTime, snapshot.sourceTime);
+assert.equal(data.meta.retrievedAt, snapshot.retrievedAt);
+assert(Date.parse(snapshot.sourceTime) <= Date.parse(snapshot.retrievedAt), 'Retrieval is not the source update time');
+assert(data.items.filter((d) => d.price !== null).every((d) => d.sourceTime === snapshot.sourceTime), 'All quotes use the current snapshot');
+for (const q of quotes) {
+  const match = data.items.find((d) => d.id === `tracked_${q.name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')}_${q.ref}`)
+    ?? data.items.find((d) => d.name === q.name && d.category !== 'Server variants');
+  assert(match, `Missing source row: ${q.name}`);
+  assert.equal(match.price, q.price, `Quote mismatch: ${q.name}`);
+  assert.equal(match.change, q.change, `Change mismatch: ${q.name}`);
+  assert.equal(match.priceType, q.priceType, `Quote type mismatch: ${q.name}`);
+}
+assert.equal(Object.keys(data.alternates).length, snapshot.alternateCount);
+assert(Object.values(data.alternates).every((q) => q.observedOn === snapshot.retrievedOn));
 assert(data.items.every((d) => d.price === null || d.price > 0));
 assert(data.items.filter((d) => d.price !== null).every((d) => d.source && d.sourceTime), 'Every quote must retain provenance');
 assert(data.items.every((d) => d.monthlyAverage === null), 'No monthly average can be invented from a current quote');
@@ -40,7 +63,7 @@ assert.equal(craft(byId.get('donut_skeleton_spawner'), data.recipes, byId), null
 const flips = craftable(data.items, data.recipes, byId);
 const reliable = flips.filter((d) => passesGrade(d.recipe.grade, 'B'));
 assert(reliable.length > 0 && reliable.every((d) => ['S', 'A', 'B'].includes(d.recipe.grade)), 'Default flips exclude C/D-grade quotes');
-assert(!reliable.some((d) => d.id === 'waxed_exposed_copper_chest'));
+assert(flips.filter((d) => !passesGrade(d.recipe.grade, 'B')).every((d) => !reliable.includes(d)));
 assert(flips.length > reliable.length);
 
 // CSV import
@@ -80,3 +103,28 @@ if (process.argv.includes('--dist')) {
 }
 
 console.log(`PASS: catalog/provenance, formatting, recipe yield + grades, CSV import, spawner math, ${data.items.filter((d) => d.icon).length} local icons${process.argv.includes('--dist') ? ', built site' : ''}.`);
+
+// Freshness labels must follow the source timestamp, not the page load time.
+assert(timestamp('2026-10-21T17:49:00Z').includes('2026'));
+assert(timestamp('2026-10-21T17:49:00Z').includes('PDT'));
+assert.equal(timeAgo('2026-10-21T17:49:00Z', Date.parse('2026-10-23T17:49:00Z')), '2 days ago');
+assert.equal(timeAgo('invalid'), 'Time unavailable');
+// Official stats: unknown values remain missing, and zero deaths are handled explicitly.
+assert(validUsername('DrDonut') && validUsername('.Player_1'));
+assert(!validUsername('../secret') && !validUsername('a') && !validUsername('bad name'));
+const stats = parseStats({ money: '1234567', kills: '20', deaths: '0', shards: '', playtime: '90000000' });
+assert.equal(stats.money, 1234567); assert.equal(stats.shards, null); assert.equal(stats.broken_blocks, null);
+assert.equal(killDeath(stats), 'No deaths'); assert.equal(playtime(stats.playtime), '1d 1h');
+assert.throws(() => parseStats({ money: 'NaN', deaths: -1 }));
+const request = new Request('https://stats.example/?username=DrDonut', { headers: { Origin: 'https://donut-tracker-nathan.ninianate185.chatgpt.site' } });
+assert.equal((await handlePlayerRequest(request, {})).status, 503);
+const api = await handlePlayerRequest(request, { DONUTSMP_API_KEY: 'test-only' }, async (url, init) => {
+  assert.equal(url, 'https://api.donutsmp.net/v1/stats/DrDonut');
+  assert.equal(init.headers.Authorization, 'Bearer test-only');
+  return Response.json({ status: 200, result: { money: '5', kills: '0' } });
+});
+const payload = await api.json();
+assert.equal(api.status, 200); assert.equal(payload.stats.money, '5'); assert.equal(payload.stats.shards, null);
+assert(!JSON.stringify(payload).includes('test-only'));
+assert.equal((await handlePlayerRequest(request, { DONUTSMP_API_KEY: 'test-only' }, async () => new Response('', { status: 429 }))).status, 429);
+console.log('PASS: source update timestamps, player input + missing stats, private-key proxy and API errors.');

@@ -23,9 +23,9 @@ npm run preview    # serve the built dist/
 
 ## Data
 
-- All 1,505 Minecraft Java 26.1 registry items (the registry's `air` entry is excluded), plus identified server items and source variants: 1,595 searchable entries total.
-- 1,404 rounded public market quotes from https://donutsmpterminal.com/all_items, published October 21, 2026 at 17:49 UTC. This is a snapshot, not a live feed.
-- 25 alternate displayed values from https://donut.auction retained separately with source links. Its transaction history may be stale or incomplete.
+- All 1,505 Minecraft Java 26.1 registry items (the registry's `air` entry is excluded), plus identified server items and source variants: 1,596 searchable entries total.
+- 1,409 rounded public market quotes from https://donutsmpterminal.com/all_items, published October 24, 2026 at 13:59 UTC (6:59 AM PDT). All 1,424 source rows are retained, including 15 without a price. This is a snapshot, not a live feed. Auction-house and fallback buy-order quotes retain their type.
+- 25 alternate displayed values from https://donut.auction, checked October 24, retained separately with source links. Its source update time is unknown; checking the page does not establish fresh sales or a monthly average.
 - Catalog and recipes: https://github.com/PrismarineJS/minecraft-data.
 - No verified October transaction dataset is included. Missing monthly averages and missing prices remain unavailable; no fake history is generated.
 - Import a CSV through Sources & coverage to calculate October volume-weighted sample means. Required columns: item,unitPrice,quantity,timestamp. Use timezone-qualified ISO dates. The imported sample does not establish complete server-wide coverage.
@@ -33,7 +33,9 @@ npm run preview    # serve the built dist/
 
 ## Update the snapshot
 
-Edit the attributed files in `data/`, then run `npm run catalog` (`python scripts/build-catalog.py`). It regenerates `src/data/catalog.json`. Item images live in `public/assets/`; refresh them with `python scripts/download-renders.py` (native renders) or `python scripts/download-icons.py` (fallback textures), then rebuild. Never fill missing observations with zero or generated estimates.
+Run `npm run prices:refresh` to fetch both public pages, validate their complete displayed rows, save dated observations and the provenance manifest `data/market-snapshot.json`, and regenerate `src/data/catalog.json`. The manifest keeps the source publication timestamp separate from retrieval times and records source hashes. Missing prices and missing seven-day changes remain null. Existing source variant references are retained; duplicate labels remain unmerged. The script stops before replacing the snapshot if parsing or coverage validation fails.
+
+Run `npm run catalog` (`python3 scripts/build-catalog.py`) to rebuild from the saved manifest without another fetch, then `npm run build`. Item images live in `public/assets/`; refresh them with `python3 scripts/download-renders.py` (native renders) or `python3 scripts/download-icons.py` (fallback textures). Never fill missing observations with zero or generated estimates.
 
 ## Persistence and calculations
 
@@ -49,6 +51,8 @@ Skeleton, Zombie, Spider, Creeper, Pig, Cow, Blaze, Zombified Piglin, and Iron G
 
 Production rates are always user measured. Every included drop needs a rate and a price; a rate of zero excludes a drop, and missing observations never become zero. Payback needs positive income and a purchase price. No spawner purchase price is fabricated.
 
+Saved user inputs are preserved across quote refreshes. Use **Use market prices** on the calculator to apply the latest drop prices while keeping measured rates and the purchase price.
+
 ## Motion and accessibility
 
 Motion is purposeful: sliding nav and tab pills, rolling page numbers, counting KPIs, spring tilt and click-for-embers on the spawner, row re-ordering, and sheet/dialog transitions. `MotionConfig reducedMotion="user"` plus CSS guards turn ambient motion off for reduced-motion users. Keyboard: `⌘K`/`Ctrl K` or `/` opens search, `C` toggles compare on Investments, arrow keys tilt the spawner.
@@ -56,3 +60,29 @@ Motion is purposeful: sliding nav and tab pills, rolling page numbers, counting 
 ## Hosting
 
 `.openai/hosting.json` points the Sites deployment at `dist/`. The build uses relative URLs and hash routes, so `dist/` works on any static host. Commit `dist/` after `npm run build` if the host deploys straight from the repository. GitHub repository: https://github.com/ninianate185-cmyk/Donuttracker.com.
+
+
+## Update times and player search
+
+The freshness bar on every page uses the original market source timestamp (including year and Pacific timezone) and its age. Opening the site does not refresh the quoted prices. Item details retain their own quote timestamp. Player data has a separate retrieval timestamp.
+
+Player search is after Investments in the desktop navigation, and is also in the mobile navigation and command menu. Username validation, shareable `#/players?name=Username` links, request cancellation, error states, and ten official stats plus K/D are implemented. Missing stats stay unavailable. No API key is currently configured, so the released page explicitly shows that live stats are not connected.
+
+To enable live stats later:
+
+1. Deploy `server/player-api.mjs` as a Cloudflare Worker (or adapt it to your backend).
+2. Save your own authorized key as the **server secret** `DONUTSMP_API_KEY`. Never put it into a `VITE_` variable or the repository.
+3. Set `ALLOWED_ORIGINS` on that backend to the exact frontend origins, comma-separated. Defaults cover the existing Sites domain and GitHub Pages origin.
+4. Set the frontend build variable `VITE_PLAYER_API_URL` to that Worker URL and rebuild. GitHub Pages remains a static deployment; it cannot hold the private API key.
+
+The proxy calls the documented official `GET /v1/stats/{user}` endpoint, returns only permitted stat fields with `fetchedAt`, and does not expose upstream credentials or errors. The playtime formatter treats the API value as milliseconds. No example player balances are bundled.
+
+
+## Typography
+
+IBM Plex Sans is self-hosted for headings and interface text, with medium/semibold hierarchy and restrained spacing. IBM Plex Mono provides tabular prices and statistics. Only the used Latin weights are bundled; no external font service is required.
+
+
+## Investment arrivals
+
+The four featured investment artworks fly into their slots on entry to Investments, with separate paths, staggered landings, and a replay button. The sequence also runs when Investments is selected again. It is scoped to that page; overview items remain static. Offscreen cards wait until visible, images preload before flight, and scrolling, resizing, or leaving the page removes in-flight artwork. Reduced-motion preferences show the items immediately.

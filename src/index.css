@@ -1,17 +1,18 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
-@import "@fontsource-variable/geist-mono";
-@import "@fontsource/pixelify-sans/500.css";
-@import "@fontsource/pixelify-sans/700.css";
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
-  --font-heading: 'Pixelify Sans', var(--font-sans);
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-heading: 'IBM Plex Sans', var(--font-sans);
   --color-up: var(--up);
   --color-down: var(--down);
   --color-ember: var(--ember);
@@ -77,12 +78,18 @@
   html {
     @apply font-sans;
     -webkit-font-smoothing: antialiased;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
   }
   body {
     @apply bg-background text-foreground;
     /* faint pixel grid, a nod to inventory slots */
     background-image: linear-gradient(#ffffff05 1px, transparent 1px), linear-gradient(90deg, #ffffff05 1px, transparent 1px);
     background-size: 32px 32px;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
   }
   ::selection {
     background: color-mix(in oklab, var(--primary) 40%, transparent);

@@ -49,7 +49,7 @@ export function TipJarDialog({ open, onOpenChange }: { open: boolean; onOpenChan
         <span className="inline-flex items-center justify-center gap-2 text-[10px] font-medium tracking-[0.16em] text-ember">
           <i className="size-1.5 rounded-full bg-current" /> COMING SOON
         </span>
-        <DialogTitle className="mt-3 mb-3 font-heading text-3xl font-bold">A tip for the tracker.</DialogTitle>
+        <DialogTitle className="mt-3 mb-3 font-heading text-3xl font-semibold">A tip for the tracker.</DialogTitle>
         <DialogDescription className="mx-auto max-w-80 text-sm leading-relaxed">
           If Donut Tracker helps you find your next move, you’ll soon be able to leave a little support.
         </DialogDescription>

@@ -134,7 +134,7 @@ export function PageHead({ title, description, action }: { title: string; descri
   return (
     <section className="flex flex-wrap items-end justify-between gap-4">
       <div className="flex flex-col gap-2">
-        <h1 className="font-heading text-4xl font-bold leading-none tracking-tight sm:text-5xl">{title}</h1>
+        <h1 className="font-heading text-[2.125rem] font-semibold leading-[1.1] tracking-[-0.035em] sm:text-[2.75rem]">{title}</h1>
         <p className="max-w-2xl text-muted-foreground">{description}</p>
       </div>
       {action}
