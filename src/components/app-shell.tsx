@@ -109,11 +109,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <motion.span whileHover={{ rotate: 90 }} transition={{ type: 'spring', stiffness: 200, damping: 12 }} className="block">
               <Logo className="size-7" />
             </motion.span>
-            <span className="font-heading text-lg font-semibold tracking-[-0.035em]">
+            <span className="font-heading text-lg font-semibold tracking-[-0.035em] md:max-lg:sr-only">
               donut<span className="text-primary">tracker</span>
             </span>
           </NavLink>
-          <nav aria-label="Main" className="ml-2 hidden items-center gap-0 xl:flex">
+          <nav aria-label="Main" className="ml-2 hidden items-center gap-0 md:flex">
             {NAV.map((n) => (
               <NavLink key={n.to} to={n.to} end={n.to === '/'} className="relative rounded-md px-2.5 py-1.5 text-[13px] whitespace-nowrap">
                 {({ isActive }) => (
@@ -129,12 +129,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={openSearch}
-            className="hidden h-9 min-w-40 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm whitespace-nowrap text-muted-foreground transition hover:border-input hover:text-foreground sm:flex xl:min-w-36 2xl:min-w-52"
+            className="hidden h-9 min-w-40 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm whitespace-nowrap text-muted-foreground transition hover:border-input hover:text-foreground lg:flex xl:min-w-36 2xl:min-w-52"
           >
             <Search className="size-4" /> Search<span className="max-2xl:hidden"> {num(ITEMS.length)} items</span>
             <Kbd className="ml-auto">⌘K</Kbd>
           </button>
-          <button type="button" onClick={openSearch} aria-label="Search items" className="grid size-10 place-items-center rounded-lg border border-border sm:hidden">
+          <button type="button" onClick={openSearch} aria-label="Search items" className="grid size-10 place-items-center rounded-lg border border-border lg:hidden">
             <Search className="size-4" />
           </button>
           <TipJarButton onClick={openTipJar} />
@@ -161,7 +161,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
       <Ticker />
 
-      <main id="content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 pt-8 pb-28 outline-none sm:px-8 sm:pt-10 xl:pb-16">
+      <main id="content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 pt-8 pb-28 outline-none sm:px-8 sm:pt-10 md:pb-16">
         <MarketUpdate />
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={location.pathname} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}>
@@ -170,7 +170,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </AnimatePresence>
       </main>
 
-      <footer className="border-t border-border pb-24 xl:pb-0">
+      <footer className="border-t border-border pb-24 md:pb-0">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-6 text-xs text-muted-foreground sm:px-8">
           <span>Independent community project. Not affiliated with Donut SMP.</span>
           <span className="flex-1" />
@@ -186,7 +186,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </footer>
 
-      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-background/95 px-2 pt-1 pb-[max(env(safe-area-inset-bottom),10px)] backdrop-blur-md xl:hidden">
+      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-background/95 px-2 pt-1 pb-[max(env(safe-area-inset-bottom),10px)] backdrop-blur-md md:hidden">
         {TABS.map((t) => (
           <NavLink key={t.to} to={t.to} end={t.to === '/'} className="relative flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 text-[11px]">
             {({ isActive }) => (

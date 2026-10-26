@@ -48,7 +48,7 @@ for (const id of ['dragon_head', 'piglin_head', 'player_head', 'zombie_head', 'c
   assert.equal(d.flat, false);
 }
 assert.equal(byId.get('elytra').flat, true);
-assert(fs.existsSync('public/assets/spawner.png') && fs.existsSync('public/assets/renders/spawner.png'));
+assert(fs.existsSync('public/assets/entity/spawner_block.png') && fs.existsSync('public/assets/renders/spawner.png'));
 
 // Formatting
 assert.equal(fmt(null), '—');
@@ -99,7 +99,7 @@ if (process.argv.includes('--dist')) {
   const html = fs.readFileSync('dist/index.html', 'utf8');
   assert(!/src="\/|href="\/(?!\/)/.test(html), 'Built entry must use relative URLs for static hosting');
   for (const ref of html.match(/assets\/build\/[^"]+/g) ?? []) assert(fs.existsSync('dist/' + ref), `Missing built file: ${ref}`);
-  assert(fs.existsSync('dist/assets/renders/elytra.png') && fs.existsSync('dist/assets/spawner.png'), 'Public assets must be copied into dist');
+  assert(fs.existsSync('dist/assets/renders/elytra.png') && fs.existsSync('dist/assets/entity/spawner_block.png'), 'Public assets must be copied into dist');
 }
 
 console.log(`PASS: catalog/provenance, formatting, recipe yield + grades, CSV import, spawner math, ${data.items.filter((d) => d.icon).length} local icons${process.argv.includes('--dist') ? ', built site' : ''}.`);

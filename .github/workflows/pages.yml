@@ -1,9 +1,13 @@
-# Build the Vite site and publish dist/ to GitHub Pages on every push to main.
+# Build the Vite site and publish dist/ to GitHub Pages on every push to main,
+# and hourly with freshly fetched public quotes.
 name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
+  schedule:
+    # Off the hour to avoid the top-of-hour Actions queue. Schedules only run from the default branch.
+    - cron: '17 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -26,6 +30,14 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Refreshed quotes go into this deploy only and are not committed. refresh-prices.py validates
+      # both sources before writing, so a failed fetch deploys the committed snapshot instead.
+      - name: Refresh market quotes
+        id: refresh
+        continue-on-error: true
+        run: npm run prices:refresh
+      - if: steps.refresh.outcome == 'failure'
+        run: echo "::warning::Quote refresh failed; deploying the committed snapshot."
       - run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

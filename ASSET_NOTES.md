@@ -1,11 +1,15 @@
-# Spawner artwork
+# Spawner models
 
-Generated with the built-in image generation tool, using the approved homepage concept as a reference. Final project asset: `public/assets/spawner.png`.
+Spawners render in real-time 3D with three.js (`src/components/spawner-stage.tsx`). Nothing is AI-generated:
 
-## Generation prompt
+- **Cage:** the vanilla `cube_all` spawner block with the unmodified `block/spawner.png` cutout texture.
+- **Mobs:** vanilla Java Edition 1.21.4 entity geometry, with box sizes, pivots and UV offsets ported from the game's model layers into `src/lib/mob-models.ts`. Each mob is skinned with its unmodified vanilla texture.
+- **Pose:** matches `SpawnerRenderer`: the mob is scaled by `0.53125 / max(hitbox width, height)`, tilted 30° and spun inside the cage.
 
-Create a standalone transparent-background website hero asset based on the skeleton spawner in the upper-right of the provided Donut Tracker mockup. ONLY one beautiful high fidelity isometric Minecraft skeleton spawner: finely detailed dark blue-gray cubic metal cage with a small complete Minecraft skeleton holding a bow INSIDE, gentle amber embers inside, crisp voxel forms, premium studio render, subtly warm light on lower edges. It sits on one thin square dark stone plinth, no background floor. Fully transparent background around entire subject, no text, no UI, no charts, no labels, no scenery, no halo or smoke. Large centered isolated object with generous transparent margins. Clean physically plausible lighting, 3/4 view front-right and from above, exact balanced cube geometry. Make the cage bars slightly thinner so the full little skeleton is visible inside. This asset will sit on a charcoal website and respond to pointer movement. Preserve the sophisticated dark metallic and amber style of the reference.
+Textures in `public/assets/entity/` come from the versioned mcasset.cloud mirror of Minecraft 1.21.4 (`https://assets.mcasset.cloud/1.21.4/assets/minecraft/textures/…`): `block/spawner`, `entity/skeleton/skeleton`, `entity/zombie/zombie`, `entity/spider/spider`, `entity/creeper/creeper`, `entity/pig/pig`, `entity/cow/cow`, `entity/blaze`, `entity/piglin/zombified_piglin` and `entity/iron_golem/iron_golem`.
 
-All 1,505 vanilla registry entries now use inventory images rendered natively in Minecraft by [Owen1212055/mc-assets](https://github.com/Owen1212055/mc-assets), pinned to commit `798494f03c20bbb577dd7fcd10e8737dbc0dfc0a`. Original 256×256 PNGs are hosted locally in `public/assets/renders/`; no AI-generated item replacements are used. Provenance is in `data/native-render-source.json`.
+# Item art
 
-Fallback textures from the versioned mcasset.cloud public collection and legacy custom SVG head icons remain in `public/assets/` for compatibility. The spawner illustration above is the only AI-generated visual. Drag interactions tilt the raster artwork and do not imply a fully rotatable 3D model.
+All 1,505 vanilla registry entries use inventory images rendered natively in Minecraft by [Owen1212055/mc-assets](https://github.com/Owen1212055/mc-assets), pinned to commit `798494f03c20bbb577dd7fcd10e8737dbc0dfc0a`. Original 256×256 PNGs are hosted locally in `public/assets/renders/`. Provenance is in `data/native-render-source.json`.
+
+Fallback textures from the versioned mcasset.cloud public collection and legacy custom SVG head icons remain in `public/assets/` for compatibility. `renders/spawner.png` is shown in place of the 3D stage when WebGL is unavailable.
