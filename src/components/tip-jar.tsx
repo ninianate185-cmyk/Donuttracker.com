@@ -1,17 +1,23 @@
+import { useState } from 'react'
 import { motion } from 'motion/react'
-import { Lock } from 'lucide-react'
+import { Check, Copy, Lock } from 'lucide-react'
+import { toast } from 'sonner'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { TIP_PRESETS, TIP_USERNAME, tipCommand } from '@/lib/tips.ts'
+import { fmt } from '@/lib/format.ts'
 import { cn } from '@/lib/utils'
 
-/* Ported from the tip jar Nathan added to the previous site. Payments are intentionally unconnected. */
+/* Copies an in-game command; never initiates or claims to verify a payment. */
 export function TipJarButton({ onClick, className }: { onClick: () => void; className?: string }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-haspopup="dialog"
-      aria-label="Tip jar — coming soon"
+      aria-label="Tip jar"
       className={cn(
         'group flex h-9 items-center gap-2 rounded-lg border border-ember/35 bg-ember/5 px-2.5 text-xs font-medium text-ember transition hover:-translate-y-0.5 hover:border-ember/70 hover:bg-ember/10',
         className,
@@ -22,17 +28,30 @@ export function TipJarButton({ onClick, className }: { onClick: () => void; clas
         <path d="M9 14c-2-3-5 1 3 5 8-4 5-8 3-5l-3 2-3-2Z" transform="translate(0 -2) scale(1 .95)" />
       </svg>
       <span className="whitespace-nowrap max-xl:sr-only">Tip jar</span>
-      <small className="border-l border-ember/30 pl-2 text-[10px] font-normal text-ember/80 max-xl:hidden">Soon</small>
     </button>
   )
 }
 
 export function TipJarDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const [amount, setAmount] = useState(String(TIP_PRESETS[0]))
+  const [copied, setCopied] = useState(false)
+  const command = tipCommand(amount)
+  const invalid = !command
+  const changeAmount = (value: string) => { setAmount(value); setCopied(false) }
+  async function copyCommand() {
+    if (!command) return
+    try {
+      if (!navigator.clipboard) throw new Error('Clipboard unavailable')
+      await navigator.clipboard.writeText(command)
+      setCopied(true)
+    } catch {
+      toast('Select the command below and copy it manually.')
+    }
+  }
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[440px] gap-0 bg-[radial-gradient(ellipse_at_50%_20%,#3a2e2455,transparent_55%),var(--popover)] p-7 text-center sm:p-8">
-        <p className="text-left text-[10px] font-medium tracking-[0.12em] text-muted-foreground">A LITTLE SUPPORT GOES A LONG WAY</p>
-        <div className="mx-auto mt-2 mb-3 size-36 text-ember" aria-hidden="true">
+    <Dialog open={open} onOpenChange={(value) => { setCopied(false); onOpenChange(value) }}>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] gap-0 overflow-y-auto bg-[radial-gradient(ellipse_at_50%_20%,#3a2e2455,transparent_55%),var(--popover)] p-6 text-center sm:max-w-[460px]">
+        <div className="mx-auto mb-2 size-12 text-ember" aria-hidden="true">
           <svg viewBox="0 0 160 160" fill="none" className="size-full overflow-visible">
             <ellipse cx="80" cy="139" rx="44" ry="6" fill="currentColor" opacity=".08" />
             <motion.g initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.2, 0.7, 0.25, 1] }}>
@@ -47,20 +66,37 @@ export function TipJarDialog({ open, onOpenChange }: { open: boolean; onOpenChan
           </svg>
         </div>
         <span className="inline-flex items-center justify-center gap-2 text-[10px] font-medium tracking-[0.16em] text-ember">
-          <i className="size-1.5 rounded-full bg-current" /> COMING SOON
+          <i className="size-1.5 rounded-full bg-current" /> SUPPORT IN GAME
         </span>
-        <DialogTitle className="mt-3 mb-3 font-heading text-3xl font-semibold">A tip for the tracker.</DialogTitle>
+        <DialogTitle className="mt-2 mb-2 font-heading text-3xl font-semibold">A tip for the tracker.</DialogTitle>
         <DialogDescription className="mx-auto max-w-80 text-sm leading-relaxed">
-          If Donut Tracker helps you find your next move, you’ll soon be able to leave a little support.
+          Enjoying the tracker? Send a little Donut SMP money to <span className="font-medium text-foreground">{TIP_USERNAME}</span> in Minecraft.
         </DialogDescription>
-        <p className="flex items-center justify-center gap-2 py-5 text-xs text-muted-foreground">
-          <Lock className="size-3.5" /> Payments aren’t connected yet.
-        </p>
-        <Button disabled className="h-11 w-full disabled:opacity-100 disabled:bg-secondary disabled:text-muted-foreground">
-          Tips open soon <span aria-hidden="true" className="text-lg text-ember">♡</span>
-        </Button>
+        <form className="mt-4 flex flex-col gap-2.5 text-left" onSubmit={(event) => { event.preventDefault(); void copyCommand() }}>
+          <div className="flex items-center justify-between rounded-lg border border-border bg-surface px-3 py-2.5 text-xs">
+            <span className="text-muted-foreground">Send to</span><strong className="num text-sm font-medium">{TIP_USERNAME}</strong>
+          </div>
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-2 text-xs font-medium text-muted-foreground">Choose an in-game amount</legend>
+            <div className="grid grid-cols-3 gap-2">
+              {TIP_PRESETS.map((value) => <Button key={value} type="button" variant={Number(amount) === value ? 'default' : 'outline'} aria-pressed={Number(amount) === value} onClick={() => changeAmount(String(value))} className="num">{fmt(value)}</Button>)}
+            </div>
+          </fieldset>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="tip-amount" className="text-xs text-muted-foreground">Custom amount · in-game dollars</Label>
+            <Input id="tip-amount" className="num" type="text" inputMode="numeric" autoComplete="off" maxLength={16} value={amount} onChange={(event) => changeAmount(event.target.value)} aria-invalid={invalid} aria-describedby="tip-amount-help" />
+            <p id="tip-amount-help" className={cn('text-xs', invalid ? 'text-down' : 'text-muted-foreground')} aria-live="polite">{invalid ? 'Enter a positive whole number, using digits only.' : 'Any whole amount is appreciated.'}</p>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="tip-command" className="text-xs text-muted-foreground">Your payment command</Label>
+            <Input id="tip-command" readOnly className="num text-xs" value={command ?? ''} placeholder="Choose a valid amount" onFocus={(event) => event.currentTarget.select()} />
+          </div>
+          <Button type="submit" disabled={!command} className="h-10 w-full">{copied ? <Check className="size-4" /> : <Copy className="size-4" />}{copied ? 'Copied — paste in Minecraft' : 'Copy /pay command'}</Button>
+          <p className="text-xs leading-relaxed text-muted-foreground">Join Donut SMP and paste the command into chat. Check the username and amount before sending. This site doesn’t send or verify payments.</p>
+        </form>
+        <div className="mt-4 flex items-center justify-center gap-2 border-t border-border pt-4 text-xs text-muted-foreground"><Lock className="size-3.5" />Cash tips · coming soon</div>
         <DialogClose asChild>
-          <button type="button" className="mx-auto mt-5 text-xs text-muted-foreground hover:text-ember">
+          <button type="button" className="mx-auto mt-4 text-xs text-muted-foreground hover:text-ember">
             Back to the tracker ↗
           </button>
         </DialogClose>

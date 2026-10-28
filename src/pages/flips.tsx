@@ -48,6 +48,10 @@ export default function Flips() {
     fn()
     setPage(1)
   }
+  const selectRecipe = (id: string) => {
+    setSelected(id)
+    if (tab !== 'crafting') setParams({ tab: 'crafting' }, { replace: true })
+  }
 
   return (
     <div className="flex flex-col gap-7">
@@ -100,16 +104,13 @@ export default function Flips() {
                   key={d.id}
                   layout="position"
                   aria-selected={selected === d.id}
-                  onClick={() => {
-                    setSelected(d.id)
-                    if (tab !== 'crafting') setParams({ tab: 'crafting' }, { replace: true })
-                  }}
+                  onClick={() => selectRecipe(d.id)}
                   className={cn('cursor-pointer border-b border-border transition-colors hover:bg-accent/60', selected === d.id && 'bg-secondary')}
                 >
                   <TableCell className="pl-4">
-                    <span className="flex items-center gap-2.5 font-medium">
+                    <button type="button" className="flex items-center gap-2.5 text-left font-medium" aria-pressed={selected === d.id} onClick={(event) => { event.stopPropagation(); selectRecipe(d.id) }}>
                       <ItemIcon item={d} size={26} /> {d.name}
-                    </span>
+                    </button>
                   </TableCell>
                   <TableCell className="num text-right">{fmt(d.recipe.cost)}</TableCell>
                   <TableCell className="text-right max-sm:hidden">
@@ -188,8 +189,9 @@ function CraftPlanner({ item, onItem }: { item: CraftItem | undefined; onItem: (
   const [qty, setQty] = useState('16')
   if (!item) return <p className="text-sm text-muted-foreground">No recipe matches the current filters.</p>
   const s = +sell
-  const q = Math.floor(+qty)
-  const ok = s > 0 && q > 0
+  const q = Number(qty)
+  const validQty = Number.isSafeInteger(q) && q > 0
+  const ok = Number.isFinite(s) && s > 0 && validQty
   return (
     <div className="flex flex-col gap-4">
       <button type="button" onClick={() => onItem(item.id)} className="flex items-center gap-3 text-left">
@@ -218,9 +220,9 @@ function CraftPlanner({ item, onItem }: { item: CraftItem | undefined; onItem: (
       </div>
       <div className="grid grid-cols-2 gap-2.5">
         <Field id="craft-sell" label="Sell / item" value={sell} onChange={setSell} />
-        <Field id="craft-qty" label="Quantity" value={qty} onChange={setQty} />
+        <Field id="craft-qty" label="Quantity" value={qty} onChange={setQty} min={1} step="1" error={qty !== '' && !validQty ? 'Enter a whole quantity of at least 1.' : undefined} />
       </div>
-      <Results capital={q > 0 ? item.recipe.cost * q : null} spread={ok ? (s - item.recipe.cost) * q : null} />
+      <Results capital={validQty ? item.recipe.cost * q : null} spread={ok ? (s - item.recipe.cost) * q : null} />
       <Button disabled={!ok} onClick={() => save({ id: item.id, buy: item.recipe.cost, sell: s, qty: q, profit: (s - item.recipe.cost) * q, method: 'Crafting' })}>
         Save plan
       </Button>
@@ -232,17 +234,21 @@ function ManualPlanner({ kind, initial }: { kind: 'order' | 'auction'; initial: 
   const save = useSavePlan()
   const auction = kind === 'auction'
   const [name, setName] = useState(initial ? `${initial.name} — ${initial.id}` : '')
-  const item = byId.get(name.split(' — ').at(-1) ?? '') ?? ITEMS.find((d) => d.name.toLowerCase() === name.trim().toLowerCase())
+  const findItem = (value: string) => byId.get(value.split(' — ').at(-1)?.trim() ?? '') ?? ITEMS.find((d) => d.name.toLowerCase() === value.trim().toLowerCase())
+  const item = findItem(name)
   const [buy, setBuy] = useState('')
   const [sell, setSell] = useState(initial?.price != null ? String(initial.price) : '')
   const [fee, setFee] = useState('')
   const [qty, setQty] = useState('64')
   const b = +buy
   const s = +sell
-  const f = Math.min(100, Math.max(0, +fee || 0))
-  const q = Math.floor(+qty)
-  const ok = !!item && b > 0 && s > 0 && q > 0
-  const spread = b > 0 && s > 0 && q > 0 ? (s * (1 - f / 100) - b) * q : null
+  const f = Number(fee)
+  const q = Number(qty)
+  const validQty = Number.isSafeInteger(q) && q > 0
+  const validFee = Number.isFinite(f) && f >= 0 && f <= 100
+  const validPrices = Number.isFinite(b) && b > 0 && Number.isFinite(s) && s > 0
+  const ok = !!item && validPrices && validQty && validFee
+  const spread = ok ? (s * (1 - f / 100) - b) * q : null
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-muted-foreground">
@@ -261,8 +267,8 @@ function ManualPlanner({ kind, initial }: { kind: 'order' | 'auction'; initial: 
           value={name}
           onChange={(e) => {
             setName(e.target.value)
-            const d = byId.get(e.target.value.split(' — ').at(-1) ?? '')
-            if (d?.price != null) setSell(String(d.price))
+            const d = findItem(e.target.value)
+            setSell(d?.price != null ? String(d.price) : '')
           }}
         />
         <datalist id="plan-items">
@@ -274,10 +280,10 @@ function ManualPlanner({ kind, initial }: { kind: 'order' | 'auction'; initial: 
       <div className="grid grid-cols-2 gap-2.5">
         <Field id="plan-buy" label={auction ? 'Listing price / item' : 'Order price / item'} value={buy} onChange={setBuy} />
         <Field id="plan-sell" label={auction ? 'Resell / item' : 'Sell / item'} value={sell} onChange={setSell} />
-        {auction && <Field id="plan-fee" label="Selling fee %" value={fee} onChange={setFee} placeholder="Optional" />}
-        <Field id="plan-qty" label="Quantity" value={qty} onChange={setQty} />
+        {auction && <Field id="plan-fee" label="Selling fee %" value={fee} onChange={setFee} placeholder="Optional" error={!validFee ? 'Enter a fee from 0 to 100%.' : undefined} />}
+        <Field id="plan-qty" label="Quantity" value={qty} onChange={setQty} min={1} step="1" error={qty !== '' && !validQty ? 'Enter a whole quantity of at least 1.' : undefined} />
       </div>
-      <Results capital={b > 0 && q > 0 ? b * q : null} spread={spread} />
+      <Results capital={Number.isFinite(b) && b > 0 && validQty ? b * q : null} spread={spread} />
       <Button disabled={!ok} onClick={() => item && save({ id: item.id, buy: b, sell: s, qty: q, fee: auction ? f : undefined, profit: spread!, method: auction ? 'Auction' : 'Order' })}>
         Save plan
       </Button>

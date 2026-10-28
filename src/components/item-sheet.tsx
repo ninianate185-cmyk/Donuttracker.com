@@ -177,13 +177,14 @@ function Stat({ label, value, hint, tone }: { label: string; value: string; hint
   )
 }
 
-export function Field({ id, label, value, onChange, placeholder }: { id: string; label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
+export function Field({ id, label, value, onChange, placeholder, step = '0.01', min = 0, error }: { id: string; label: string; value: string; onChange: (v: string) => void; placeholder?: string; step?: string; min?: number; error?: string }) {
   return (
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={id} className="text-xs text-muted-foreground">
         {label}
       </Label>
-      <Input id={id} className="num" type="number" min="0" step="0.01" inputMode="decimal" value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
+      <Input id={id} className="num" type="number" min={min} step={step} inputMode={step === '1' ? 'numeric' : 'decimal'} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} aria-invalid={!!error} aria-describedby={error ? `${id}-error` : undefined} />
+      {error && <p id={`${id}-error`} role="alert" className="text-xs text-down">{error}</p>}
     </div>
   )
 }
