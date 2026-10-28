@@ -8,18 +8,11 @@ import { fmt, pct } from '../src/lib/format.ts';
 import { craft, craftable, passesGrade } from '../src/lib/market.ts';
 import { spawnerEstimate } from '../src/lib/spawner.ts';
 import { parseCSV, aggregateSales } from '../src/lib/csv.ts';
-import { TIP_USERNAME, TIP_PRESETS, tipCommand } from '../src/lib/tips.ts';
 
 const data = JSON.parse(fs.readFileSync('src/data/catalog.json', 'utf8'));
 const snapshot = JSON.parse(fs.readFileSync('data/market-snapshot.json', 'utf8'));
 const quotes = JSON.parse(fs.readFileSync('data/' + snapshot.quotesFile, 'utf8'));
 const byId = new Map(data.items.map((d) => [d.id, d]));
-
-// In-game tips are a fixed recipient and a validated amount, never an executed payment.
-assert.equal(TIP_USERNAME, 'ninianate');
-for (const value of TIP_PRESETS) assert.equal(tipCommand(String(value)), `/pay ninianate ${value}`);
-assert.equal(tipCommand(' 00042 '), '/pay ninianate 42');
-for (const value of ['', '0', '-5', '1.5', '1e6', '100k', 'NaN', 'Infinity', '9007199254740992', '100\n/pay someone 100', '10;op']) assert.equal(tipCommand(value), null, `Reject malformed tip amount: ${value}`);
 
 // Catalog integrity and provenance
 assert.equal(data.meta.catalogCount, 1505, 'Java 26.1 registry minus Air');

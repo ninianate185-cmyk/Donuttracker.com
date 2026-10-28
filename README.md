@@ -89,7 +89,7 @@ The four featured investment artworks fly into their slots on entry to Investmen
 
 ## In-game tip jar
 
-The tip jar offers 10K, 100K and 1M in-game presets plus a custom whole amount. It copies `/pay ninianate <amount>` for the visitor to paste into Minecraft. The recipient is fixed, invalid amounts cannot be copied, and selecting the command supports manual copying when clipboard access fails. The website never sends or verifies a payment. Cash tips remain unconnected.
+The tip jar displays the selectable Minecraft username `ninianate` and a short instruction to pay that player in-game on Donut SMP. There are no preset amounts, custom amount fields or generated payment commands. The website never sends or verifies a payment. Cash tips remain unconnected.
 
 ## Browser QA
 

@@ -1,6 +1,6 @@
 # Tracker QA — October 28, 2026
 
-The production build passed typechecking and the catalog, recipe, calculator, timestamp, API-proxy and tip-command checks. The following five flows were exercised in the in-app browser using a separate localhost origin so live user inputs were preserved.
+The production build passed typechecking and the catalog, recipe, calculator, timestamp and API-proxy checks. The following five flows were exercised in the in-app browser using a separate localhost origin so live user inputs were preserved.
 
 | Flow | Verified behavior |
 | --- | --- |
@@ -10,7 +10,7 @@ The production build passed typechecking and the catalog, recipe, calculator, ti
 | Spawners | All nine types load one 3D canvas at a time without browser errors. Per-type inputs persist. Two Skeleton spawners at six hours/day, Bone rate 100/price 2 and Arrow rate 50/price 1 yield 3K/day, 500/hour and 666.67 days payback at 1M purchase price each. |
 | Player search | Invalid usernames show validation. `ninianate` produces a shareable player-search URL and the explicit API-not-connected state; unavailable stats remain blank. |
 
-Additional tip-jar checks: 100K copies exactly `/pay ninianate 100000`; a custom 25,000 copies `/pay ninianate 25000`; fractional and malformed amounts cannot be copied. Preset selection, copy feedback, manual-copy field, dialog dismissal and a compact desktop layout were checked. No Minecraft or cash payment was executed.
+The tip jar was simplified at the owner's request: it now shows only the selectable recipient username and an instruction to pay in-game. Amount presets, custom amount entry and generated payment commands were removed. The absence of amount controls, dialog dismissal and compact desktop layout were checked. No Minecraft or cash payment was executed.
 
 ## Bugs corrected
 
@@ -24,6 +24,6 @@ Additional tip-jar checks: 100K copies exactly `/pay ninianate 100000`; a custom
 ## Integration limits
 
 - Player stats still require an authorized API key saved on a backend. The disconnected state was tested; live stats were not.
-- Cash tipping is still coming soon. In-game tips provide instructions and a copyable command only.
+- Cash tipping is still coming soon. In-game tips display payment instructions and the recipient username only.
 - The committed market snapshot remains dated October 24. The existing GitHub Pages schedule refreshes public quotes during its own deploys; it does not update Sites hosting automatically.
 - Dependency auditing still reports existing advisories in the shadcn CLI dependency tree. That CLI is not executed by the deployed static website; dependency upgrades were left outside these UI fixes.
