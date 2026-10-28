@@ -1,17 +1,18 @@
 import { motion } from 'motion/react'
 import { Lock } from 'lucide-react'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-/* Ported from the tip jar Nathan added to the previous site. Payments are intentionally unconnected. */
+const TIP_USERNAME = 'ninianate'
+
+/* Shares the recipient's username; payments happen in Minecraft. */
 export function TipJarButton({ onClick, className }: { onClick: () => void; className?: string }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-haspopup="dialog"
-      aria-label="Tip jar — coming soon"
+      aria-label="Tip jar"
       className={cn(
         'group flex h-9 items-center gap-2 rounded-lg border border-ember/35 bg-ember/5 px-2.5 text-xs font-medium text-ember transition hover:-translate-y-0.5 hover:border-ember/70 hover:bg-ember/10',
         className,
@@ -22,7 +23,6 @@ export function TipJarButton({ onClick, className }: { onClick: () => void; clas
         <path d="M9 14c-2-3-5 1 3 5 8-4 5-8 3-5l-3 2-3-2Z" transform="translate(0 -2) scale(1 .95)" />
       </svg>
       <span className="whitespace-nowrap max-xl:sr-only">Tip jar</span>
-      <small className="border-l border-ember/30 pl-2 text-[10px] font-normal text-ember/80 max-xl:hidden">Soon</small>
     </button>
   )
 }
@@ -30,9 +30,8 @@ export function TipJarButton({ onClick, className }: { onClick: () => void; clas
 export function TipJarDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[440px] gap-0 bg-[radial-gradient(ellipse_at_50%_20%,#3a2e2455,transparent_55%),var(--popover)] p-7 text-center sm:p-8">
-        <p className="text-left text-[10px] font-medium tracking-[0.12em] text-muted-foreground">A LITTLE SUPPORT GOES A LONG WAY</p>
-        <div className="mx-auto mt-2 mb-3 size-36 text-ember" aria-hidden="true">
+      <DialogContent className="max-h-[calc(100dvh-2rem)] gap-0 overflow-y-auto bg-[radial-gradient(ellipse_at_50%_20%,#3a2e2455,transparent_55%),var(--popover)] p-6 text-center sm:max-w-[460px]">
+        <div className="mx-auto mb-2 size-12 text-ember" aria-hidden="true">
           <svg viewBox="0 0 160 160" fill="none" className="size-full overflow-visible">
             <ellipse cx="80" cy="139" rx="44" ry="6" fill="currentColor" opacity=".08" />
             <motion.g initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.2, 0.7, 0.25, 1] }}>
@@ -47,20 +46,19 @@ export function TipJarDialog({ open, onOpenChange }: { open: boolean; onOpenChan
           </svg>
         </div>
         <span className="inline-flex items-center justify-center gap-2 text-[10px] font-medium tracking-[0.16em] text-ember">
-          <i className="size-1.5 rounded-full bg-current" /> COMING SOON
+          <i className="size-1.5 rounded-full bg-current" /> SUPPORT IN GAME
         </span>
-        <DialogTitle className="mt-3 mb-3 font-heading text-3xl font-semibold">A tip for the tracker.</DialogTitle>
+        <DialogTitle className="mt-2 mb-2 font-heading text-3xl font-semibold">A tip for the tracker.</DialogTitle>
         <DialogDescription className="mx-auto max-w-80 text-sm leading-relaxed">
-          If Donut Tracker helps you find your next move, you’ll soon be able to leave a little support.
+          To donate, pay <span className="font-medium text-foreground">{TIP_USERNAME}</span> in-game on Donut SMP.
         </DialogDescription>
-        <p className="flex items-center justify-center gap-2 py-5 text-xs text-muted-foreground">
-          <Lock className="size-3.5" /> Payments aren’t connected yet.
-        </p>
-        <Button disabled className="h-11 w-full disabled:opacity-100 disabled:bg-secondary disabled:text-muted-foreground">
-          Tips open soon <span aria-hidden="true" className="text-lg text-ember">♡</span>
-        </Button>
+        <div className="mt-5 rounded-xl border border-border bg-surface p-4">
+          <p className="text-xs text-muted-foreground">Minecraft username</p>
+          <p className="num mt-1 select-all text-2xl font-medium">{TIP_USERNAME}</p>
+        </div>
+        <div className="mt-4 flex items-center justify-center gap-2 border-t border-border pt-4 text-xs text-muted-foreground"><Lock className="size-3.5" />Cash tips · coming soon</div>
         <DialogClose asChild>
-          <button type="button" className="mx-auto mt-5 text-xs text-muted-foreground hover:text-ember">
+          <button type="button" className="mx-auto mt-4 text-xs text-muted-foreground hover:text-ember">
             Back to the tracker ↗
           </button>
         </DialogClose>

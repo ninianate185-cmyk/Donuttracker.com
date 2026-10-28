@@ -35,6 +35,7 @@ export default function Market() {
   const [dir, setDir] = useState<1 | -1>(1)
   const [size, setSize] = useState(40)
   const [page, setPage] = useState(1)
+  const invalidRange = min !== '' && max !== '' && Number(min) > Number(max)
 
   const rows = useMemo(() => {
     const lo = min ? +min : -Infinity
@@ -107,9 +108,10 @@ export default function Market() {
           <fieldset className="flex flex-col gap-2 px-2">
             <legend className="pb-2 text-xs font-medium text-muted-foreground">Price range</legend>
             <div className="grid grid-cols-2 gap-2">
-              <Input aria-label="Minimum price" className="num" type="number" min="0" placeholder="Min" value={min} onChange={(e) => reset(() => setMin(e.target.value))} />
-              <Input aria-label="Maximum price" className="num" type="number" min="0" placeholder="Max" value={max} onChange={(e) => reset(() => setMax(e.target.value))} />
+              <Input aria-label="Minimum price" aria-invalid={invalidRange} aria-describedby={invalidRange ? 'market-range-error' : undefined} className="num" type="number" min="0" placeholder="Min" value={min} onChange={(e) => reset(() => setMin(e.target.value))} />
+              <Input aria-label="Maximum price" aria-invalid={invalidRange} aria-describedby={invalidRange ? 'market-range-error' : undefined} className="num" type="number" min="0" placeholder="Max" value={max} onChange={(e) => reset(() => setMax(e.target.value))} />
             </div>
+            {invalidRange && <p id="market-range-error" role="alert" className="text-xs text-down">Maximum price must be at least the minimum.</p>}
           </fieldset>
           <Label className="flex items-center gap-2 px-2 text-sm font-normal">
             <Checkbox checked={pricedOnly} onCheckedChange={(v) => reset(() => setPricedOnly(!!v))} /> Only items with a quote

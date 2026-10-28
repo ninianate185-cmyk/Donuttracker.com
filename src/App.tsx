@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { HashRouter, Route, Routes } from 'react-router'
+import { HashRouter, Route, Routes, useLocation } from 'react-router'
 import { MotionConfig } from 'motion/react'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -17,6 +17,24 @@ import Investments from '@/pages/investments'
 import Watchlist from '@/pages/watchlist'
 import Players from '@/pages/players'
 
+function Pages() {
+  const location = useLocation()
+  // Keep the departing page bound to its own route during the shell's exit
+  // animation. Otherwise Routes renders the destination twice and resets input.
+  return <AppShell>
+    <Routes location={location}>
+      <Route path="/" element={<Overview />} />
+      <Route path="/market" element={<Market />} />
+      <Route path="/flips" element={<Flips />} />
+      <Route path="/spawners" element={<Spawners />} />
+      <Route path="/investments" element={<Investments />} />
+      <Route path="/players" element={<Players />} />
+      <Route path="/watchlist" element={<Watchlist />} />
+      <Route path="*" element={<Overview />} />
+    </Routes>
+  </AppShell>
+}
+
 export default function App() {
   const [itemId, setItemId] = useState<string | null>(null)
   const [search, setSearch] = useState(false)
@@ -33,18 +51,7 @@ export default function App() {
       <TooltipProvider delayDuration={200}>
         <HashRouter>
           <AppContext.Provider value={actions}>
-            <AppShell>
-              <Routes>
-                <Route path="/" element={<Overview />} />
-                <Route path="/market" element={<Market />} />
-                <Route path="/flips" element={<Flips />} />
-                <Route path="/spawners" element={<Spawners />} />
-                <Route path="/investments" element={<Investments />} />
-                <Route path="/players" element={<Players />} />
-                <Route path="/watchlist" element={<Watchlist />} />
-                <Route path="*" element={<Overview />} />
-              </Routes>
-            </AppShell>
+            <Pages />
             <CommandMenu open={search} onOpenChange={setSearch} onItem={openItem} />
             <ItemSheet id={itemId} onOpenChange={(o) => !o && setItemId(null)} onItem={openItem} />
             <SourcesDialog open={sources} onOpenChange={setSources} />

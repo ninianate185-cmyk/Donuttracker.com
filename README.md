@@ -86,3 +86,11 @@ IBM Plex Sans is self-hosted for headings and interface text, with medium/semibo
 ## Investment arrivals
 
 The four featured investment artworks fly into their slots on entry to Investments, with separate paths, staggered landings, and a replay button. The sequence also runs when Investments is selected again. It is scoped to that page; overview items remain static. Offscreen cards wait until visible, images preload before flight, and scrolling, resizing, or leaving the page removes in-flight artwork. Reduced-motion preferences show the items immediately.
+
+## In-game tip jar
+
+The tip jar displays the selectable Minecraft username `ninianate` and a short instruction to pay that player in-game on Donut SMP. There are no preset amounts, custom amount fields or generated payment commands. The website never sends or verifies a payment. Cash tips remain unconnected.
+
+## Browser QA
+
+See [QA_NOTES.md](QA_NOTES.md) for the five main user flows checked, observed bugs fixed, and remaining integration limits. Route transitions keep each departing page bound to its own location so quick navigation does not mount a destination form twice and discard initial input.
