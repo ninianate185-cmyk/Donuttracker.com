@@ -3,17 +3,38 @@ import { Clock3 } from 'lucide-react'
 import { META } from '@/data/catalog.ts'
 import { useApp } from '@/app-context.tsx'
 import { timeAgo, timestamp } from '@/lib/time.ts'
+import { cn } from '@/lib/utils'
 
-export function UpdatedAt({ value, label = 'Updated' }: { value: string; label?: string }) {
+function useNow() {
   const [now, setNow] = useState(Date.now)
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 60000)
     return () => window.clearInterval(id)
   }, [])
+  return now
+}
+
+export function UpdatedAt({ value, label = 'Updated' }: { value: string; label?: string }) {
+  const now = useNow()
   return <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground"><Clock3 className="size-3.5 shrink-0" aria-hidden="true" /><span>{label}:</span><time dateTime={value} title={value} className="font-medium text-foreground">{timestamp(value)}</time><span>· {timeAgo(value, now)}</span></span>
 }
 
-export function MarketUpdate() {
+/** Compact freshness status: replaces the old full-width banner on every page. Opens Sources for details. */
+export function MarketUpdate({ className }: { className?: string }) {
   const { openSources } = useApp()
-  return <aside aria-label="Market data freshness" className="mb-7 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg border border-ember/25 bg-ember/5 px-4 py-3"><div className="flex flex-col gap-1"><UpdatedAt value={META.sourceTime} label="Last market update" /><p className="text-[11px] text-muted-foreground">Price snapshot · updates when a new source snapshot is imported. Not a live feed.</p></div><button type="button" onClick={openSources} className="shrink-0 text-xs text-ember underline-offset-4 hover:underline">Sources &amp; update details ↗</button></aside>
+  const now = useNow()
+  return (
+    <button
+      type="button"
+      onClick={openSources}
+      title={`Last market update ${timestamp(META.sourceTime)}. Price snapshot, not a live feed. Click for sources.`}
+      className={cn('flex shrink-0 items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] text-muted-foreground ring-1 ring-ember/30 transition hover:bg-ember/10 hover:text-foreground', className)}
+    >
+      <span className="size-1.5 rounded-full bg-ember" aria-hidden="true" />
+      <span>
+        Snapshot · <time dateTime={META.sourceTime} className="font-medium text-foreground">{timeAgo(META.sourceTime, now).toLowerCase()}</time>
+      </span>
+      <span className="sr-only">, not a live feed. Open sources and update details.</span>
+    </button>
+  )
 }
