@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { motion } from 'motion/react'
-import { ArrowUpRight, Calculator, Gavel, Hammer } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ArrowUpRight, Calculator, Gavel, Hammer, Search } from 'lucide-react'
+import { Kbd } from '@/components/ui/kbd'
 import { Card } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ContinuousTabs } from '@/components/continuous-tabs'
@@ -19,29 +19,36 @@ const medianRoi = rois.length ? (rois.length % 2 ? rois[(rois.length - 1) / 2] :
 const movers = priced.filter((d) => d.price! >= 1000 && d.change != null && passesGrade(d.sourceGrade, 'B'))
 
 export default function Overview() {
-  const { openItem, openSources } = useApp()
+  const { openItem, openSearch } = useApp()
   const [dir, setDir] = useState<'up' | 'down'>('up')
   const topFlips = reliable.slice().sort((a, b) => b.recipe.profit - a.recipe.profit).slice(0, 6)
   const list = movers.slice().sort((a, b) => (dir === 'up' ? b.change! - a.change! : a.change! - b.change!)).slice(0, 7)
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="grid items-center gap-8 lg:grid-cols-[1fr_380px]">
-        <div className="flex flex-col gap-6">
+      <div className="grid items-center gap-8 lg:grid-cols-[1fr_400px]">
+        <div className="flex flex-col gap-5">
           <span className="text-xs font-medium tracking-[0.18em] text-primary uppercase">Donut SMP market</span>
-          <PageHead
-            title="Market overview"
-            description={<>Rounded public quotes from DonutSMP Terminal, snapshot {snapshotTime}. Not a live feed.</>}
-          />
-          <div className="flex flex-wrap gap-2">
-            <Button asChild>
-              <Link to="/market">
-                Browse catalog <ArrowUpRight className="size-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" onClick={openSources}>
-              Sources &amp; coverage
-            </Button>
+          <PageHead title="What's it worth?" description={<>Look up any of {ITEMS.length.toLocaleString('en-US')} items, find crafting spreads and plan flips. Rounded public quotes, snapshot {snapshotTime}.</>} />
+          <button
+            type="button"
+            onClick={openSearch}
+            className="group flex h-14 w-full max-w-xl items-center gap-3 rounded-xl border border-input bg-surface px-4 text-left text-muted-foreground shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_0%,transparent)] transition hover:border-primary/60 hover:shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_15%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Search className="size-5 text-primary" />
+            <span className="flex-1 truncate">Search an item<span className="max-sm:hidden">, e.g. Elytra or netherite_ingot</span></span>
+            <Kbd className="max-sm:hidden">/</Kbd>
+          </button>
+          <div className="flex flex-wrap items-center gap-2 text-sm" aria-label="Popular items">
+            <span className="text-xs text-muted-foreground">Popular:</span>
+            {FEATURED.map((id) => byId.get(id)!).map((d) => (
+              <button key={d.id} type="button" onClick={() => openItem(d.id)} className="flex items-center gap-1.5 rounded-full border border-border bg-card py-1 pr-3 pl-1.5 text-xs transition hover:border-primary/50">
+                <ItemIcon item={d} size={18} /> {d.name}
+              </button>
+            ))}
+            <Link to="/market" className="flex items-center gap-1 px-1 text-xs text-muted-foreground hover:text-foreground">
+              Full catalog <ArrowUpRight className="size-3.5" />
+            </Link>
           </div>
         </div>
         {topFlips[0] && <TopFlip d={topFlips[0]} onOpen={() => openItem(topFlips[0].id)} />}
@@ -123,6 +130,12 @@ export default function Overview() {
         </Card>
       </div>
 
+      <section className="grid gap-3 md:grid-cols-3" aria-label="Tools">
+        <Tool to="/spawners" icon={Calculator} title="Spawner calculator" text="Income and payback from your measured drop rates." />
+        <Tool to="/flips?tab=order" icon={Hammer} title="Order flip planner" text="Buy-order price against a selling target." />
+        <Tool to="/flips?tab=auction" icon={Gavel} title="Auction flip planner" text="Listing price, resale target and your selling fee." />
+      </section>
+
       <section className="flex flex-col gap-3">
         <SectionTitle
           action={
@@ -152,12 +165,6 @@ export default function Overview() {
             </motion.button>
           ))}
         </div>
-      </section>
-
-      <section className="grid gap-3 md:grid-cols-3" aria-label="Tools">
-        <Tool to="/spawners" icon={Calculator} title="Spawner calculator" text="Income and payback from your measured drop rates." />
-        <Tool to="/flips?tab=order" icon={Hammer} title="Order flip planner" text="Buy-order price against a selling target." />
-        <Tool to="/flips?tab=auction" icon={Gavel} title="Auction flip planner" text="Listing price, resale target and your selling fee." />
       </section>
     </div>
   )

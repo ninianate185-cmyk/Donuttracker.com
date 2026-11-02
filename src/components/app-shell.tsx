@@ -18,7 +18,7 @@ const NAV = [
   { to: '/flips', label: 'Flips' },
   { to: '/spawners', label: 'Spawners' },
   { to: '/investments', label: 'Investments' },
-  { to: '/players', label: 'Player search' },
+  { to: '/players', label: 'Players' },
 ]
 
 const TABS = [
@@ -61,10 +61,9 @@ function Ticker() {
   )
   return (
     <div className="border-b border-border bg-surface/80">
-      <div className="mx-auto flex h-9 max-w-7xl items-center gap-4 px-4 sm:px-8">
-        <span className="hidden shrink-0 items-center gap-1.5 text-[11px] font-medium text-muted-foreground sm:flex">
-          <span className="size-1.5 rounded-full bg-ember" /> 7-day moves · snapshot
-        </span>
+      <div className="mx-auto flex h-9 max-w-7xl items-center gap-3 px-4 sm:px-8">
+        <MarketUpdate />
+        <span className="hidden shrink-0 text-[11px] font-medium text-muted-foreground lg:inline">7-day moves</span>
         <div className="group relative flex flex-1 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]" aria-label="Biggest 7-day moves">
           <div className="motion-safe-only flex w-max animate-[marquee_60s_linear_infinite] group-hover:[animation-play-state:paused]">
             {row(false)}
@@ -129,12 +128,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={openSearch}
-            className="hidden h-9 min-w-40 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm whitespace-nowrap text-muted-foreground transition hover:border-input hover:text-foreground lg:flex xl:min-w-36 2xl:min-w-52"
+            className="hidden h-9 w-44 items-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm whitespace-nowrap text-muted-foreground transition hover:border-input hover:text-foreground lg:flex xl:w-60"
           >
-            <Search className="size-4" /> Search<span className="max-2xl:hidden"> {num(ITEMS.length)} items</span>
+            <Search className="size-4" /> Search<span className="max-xl:hidden"> {num(ITEMS.length)} items</span>
             <Kbd className="ml-auto">⌘K</Kbd>
           </button>
-          <button type="button" onClick={openSearch} aria-label="Search items" className="grid size-10 place-items-center rounded-lg border border-border lg:hidden">
+          <button type="button" onClick={openSearch} aria-label="Search items" className="grid size-9 place-items-center rounded-lg border border-border transition hover:bg-accent lg:hidden">
             <Search className="size-4" />
           </button>
           <TipJarButton onClick={openTipJar} />
@@ -161,13 +160,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
       <Ticker />
 
-      <main id="content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 pt-8 pb-28 outline-none sm:px-8 sm:pt-10 md:pb-16">
-        <MarketUpdate />
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div key={location.pathname} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}>
-            {children}
-          </motion.div>
-        </AnimatePresence>
+      <main id="content" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 pt-6 pb-28 outline-none sm:px-8 sm:pt-8 md:pb-16">
+        {/* Enter-only fade: the old exit-then-enter ("wait") transition held each navigation back by a full animation. */}
+        <motion.div key={location.pathname} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.12 }}>
+          {children}
+        </motion.div>
       </main>
 
       <footer className="border-t border-border pb-24 md:pb-0">

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { animate, useInView, useReducedMotion } from 'motion/react'
 import { Star } from 'lucide-react'
 import { toast } from 'sonner'
@@ -139,5 +139,18 @@ export function PageHead({ title, description, action }: { title: string; descri
       </div>
       {action}
     </section>
+  )
+}
+
+/** Tracks a CSS media query, e.g. to move a side panel into a drawer on narrow screens. */
+export function useMediaQuery(query: string) {
+  return useSyncExternalStore(
+    (cb) => {
+      const m = window.matchMedia(query)
+      m.addEventListener('change', cb)
+      return () => m.removeEventListener('change', cb)
+    },
+    () => window.matchMedia(query).matches,
+    () => false,
   )
 }

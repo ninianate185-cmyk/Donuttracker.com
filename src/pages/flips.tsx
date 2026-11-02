@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { AnimatePresence, motion } from 'motion/react'
-import { Search } from 'lucide-react'
+import { Gavel, Hammer, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ContinuousTabs } from '@/components/continuous-tabs'
 import { Pagination } from '@/components/pagination'
-import { GradeBadge, ItemIcon, PageHead, Price } from '@/components/bits'
+import { GradeBadge, ItemIcon, PageHead, Price, useMediaQuery } from '@/components/bits'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Field } from '@/components/item-sheet'
 import { useApp } from '@/app-context.tsx'
 import { CRAFTS, ITEMS, byId } from '@/data/catalog.ts'
@@ -35,6 +36,13 @@ export default function Flips() {
   const [sort, setSort] = useState<SortKey>('profit')
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState('netherite_ingot')
+  // Below xl the planner would sit under a long table, so it opens in a drawer instead.
+  const wide = useMediaQuery('(min-width: 1280px)')
+  const [drawer, setDrawer] = useState(tab !== 'crafting')
+  const openPlanner = (t: Tab) => {
+    setParams({ tab: t }, { replace: true })
+    setDrawer(true)
+  }
 
   const rows = useMemo(() => {
     const cap = +budget || Infinity
@@ -49,9 +57,49 @@ export default function Flips() {
     setPage(1)
   }
 
+  const planner = (
+    <>
+      <ContinuousTabs
+        label="Planner type"
+        value={tab}
+        onChange={(t) => setParams({ tab: t }, { replace: true })}
+        tabs={[
+          { id: 'crafting', label: 'Crafting' },
+          { id: 'order', label: 'Order' },
+          { id: 'auction', label: 'Auction' },
+        ]}
+        className="self-start"
+      />
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div key={tab} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.15 }}>
+          {tab === 'crafting' ? (
+            <CraftPlanner key={selected} item={CRAFTS.find((d) => d.id === selected) ?? rows[0]} onItem={openItem} />
+          ) : (
+            <ManualPlanner key={tab} kind={tab} initial={byId.get(selected)} />
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </>
+  )
+
   return (
     <div className="flex flex-col gap-7">
-      <PageHead title="Flips" description="Recipe spreads from sourced quotes. Pick a row to plan it, or plan an order or auction flip with your own prices." />
+      <PageHead
+        title="Flips"
+        description="Recipe spreads from sourced quotes. Pick a row to plan it, or plan an order or auction flip with your own prices."
+        action={
+          !wide && (
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => openPlanner('order')}>
+                <Hammer className="size-4" /> Order flip
+              </Button>
+              <Button variant="outline" onClick={() => openPlanner('auction')}>
+                <Gavel className="size-4" /> Auction flip
+              </Button>
+            </div>
+          )
+        }
+      />
 
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
         <Card className="min-w-0 flex-1 gap-0 p-0">
@@ -100,11 +148,19 @@ export default function Flips() {
                   key={d.id}
                   layout="position"
                   aria-selected={selected === d.id}
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      e.currentTarget.click()
+                    }
+                  }}
                   onClick={() => {
                     setSelected(d.id)
                     if (tab !== 'crafting') setParams({ tab: 'crafting' }, { replace: true })
+                    if (!wide) setDrawer(true)
                   }}
-                  className={cn('cursor-pointer border-b border-border transition-colors hover:bg-accent/60', selected === d.id && 'bg-secondary')}
+                  className={cn('cursor-pointer border-b border-border transition-colors outline-none hover:bg-accent/60 focus-visible:bg-accent', wide && selected === d.id && 'bg-secondary shadow-[inset_2px_0_0_var(--primary)]')}
                 >
                   <TableCell className="pl-4">
                     <span className="flex items-center gap-2.5 font-medium">
@@ -132,28 +188,21 @@ export default function Flips() {
           </div>
         </Card>
 
-        <Card className="gap-4 p-4 xl:sticky xl:top-28 xl:w-96 xl:shrink-0" aria-label="Flip planner">
-          <ContinuousTabs
-            label="Planner type"
-            value={tab}
-            onChange={(t) => setParams({ tab: t }, { replace: true })}
-            tabs={[
-              { id: 'crafting', label: 'Crafting' },
-              { id: 'order', label: 'Order' },
-              { id: 'auction', label: 'Auction' },
-            ]}
-            className="self-start"
-          />
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div key={tab} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.15 }}>
-              {tab === 'crafting' ? (
-                <CraftPlanner key={selected} item={CRAFTS.find((d) => d.id === selected) ?? rows[0]} onItem={openItem} />
-              ) : (
-                <ManualPlanner key={tab} kind={tab} initial={byId.get(selected)} />
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </Card>
+        {wide ? (
+          <Card className="sticky top-28 w-96 shrink-0 gap-4 p-4" aria-label="Flip planner">
+            {planner}
+          </Card>
+        ) : (
+          <Sheet open={drawer} onOpenChange={setDrawer}>
+            <SheetContent side="bottom" className="max-h-[88dvh] gap-0 overflow-y-auto rounded-t-2xl">
+              <SheetHeader>
+                <SheetTitle>Flip planner</SheetTitle>
+                <SheetDescription>Plan with your own prices. Plans save to your watchlist.</SheetDescription>
+              </SheetHeader>
+              <div className="mx-auto flex w-full max-w-lg flex-col gap-4 px-4 pb-6">{planner}</div>
+            </SheetContent>
+          </Sheet>
+        )}
       </div>
     </div>
   )
